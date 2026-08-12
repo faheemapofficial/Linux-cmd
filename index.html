@@ -117,6 +117,7 @@
     }
     .pill.xp { color: var(--green); }
     .pill.lvl { color: var(--blue); }
+    .pill.user { color: var(--cyan); }
     .theme-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -188,6 +189,7 @@
     .line-err { color: var(--error); }
     .line-sys { color: var(--muted); }
     .line-help { color: var(--green); }
+    .line-root { color: var(--error); font-weight: bold; }
     .ascii-prompt { color: var(--blue); }
     .term-inputline {
       border-top: 1px solid var(--border);
@@ -201,6 +203,7 @@
     }
     .p1 { color: var(--blue); }
     .p2 { color: var(--cyan); }
+    .p3 { color: var(--error); }
     #term-input {
       flex: 1;
       background: transparent;
@@ -279,7 +282,7 @@
       flex-shrink: 0;
     }
     .cmd-library.visible {
-      max-height: 360px;
+      max-height: 400px;
       opacity: 1;
       border-bottom: 1px solid var(--border);
     }
@@ -342,7 +345,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 4px 0;
-      max-height: 280px;
+      max-height: 320px;
     }
     .cmd-library .lib-body::-webkit-scrollbar { width: 5px; }
     .cmd-library .lib-body::-webkit-scrollbar-track { background: var(--terminal); }
@@ -578,6 +581,7 @@
       <button class="tab" data-section="dashboard">Dashboard</button>
     </div>
     <div class="status-pills">
+      <span class="pill user" id="user-pill">👤 kali</span>
       <span class="pill lvl" id="level-pill">LEVEL 01</span>
       <span class="pill xp" id="xp-pill">0 XP</span>
       <button class="theme-btn" id="theme-btn">THEME</button>
@@ -596,13 +600,14 @@
         </button>
       </div>
       <div class="term-body" id="term-body">
-        <div class="line-sys">Linux Terminal Simulator v2.0</div>
+        <div class="line-sys">Linux Terminal Simulator v3.0</div>
         <div class="line-sys">Type <span class="line-help">help</span> to list commands or <span class="line-help">clear</span> to clear screen.</div>
         <div class="line-sys">─────────────────────────────────────────────</div>
         <div class="line-sys">💡 Tip: Click the 📚 Commands button for a list of all commands</div>
+        <div class="line-sys">🛠️  New: sudo, su, useradd, passwd, and 20+ more commands!</div>
       </div>
       <div class="term-inputline">
-        <span class="p1">kali@linux</span>:<span class="p2">~</span>$ 
+        <span class="p1" id="prompt-user">kali@linux</span>:<span class="p2" id="prompt-path">~</span>$ 
         <input type="text" id="term-input" placeholder="Enter command..." autofocus>
       </div>
     </div>
@@ -680,6 +685,7 @@
 <script>
 // ─────────────────── DATA ───────────────────
 const COMMANDS = {
+  // Basic commands
   help: { diff: 'beginner', desc: 'Show help for commands', syntax: 'help [command]', example: 'help ls' },
   ls: { diff: 'beginner', desc: 'List directory contents', syntax: 'ls [-la] [path]', example: 'ls -la /home' },
   cd: { diff: 'beginner', desc: 'Change directory', syntax: 'cd [path]', example: 'cd /var/log' },
@@ -687,23 +693,79 @@ const COMMANDS = {
   echo: { diff: 'beginner', desc: 'Display a line of text', syntax: 'echo [text]', example: 'echo "Hello world"' },
   cat: { diff: 'beginner', desc: 'Concatenate and display files', syntax: 'cat [file]', example: 'cat /etc/hosts' },
   mkdir: { diff: 'beginner', desc: 'Create a directory', syntax: 'mkdir [name]', example: 'mkdir test' },
+  touch: { diff: 'beginner', desc: 'Create an empty file or update timestamp', syntax: 'touch [file]', example: 'touch newfile.txt' },
   rm: { diff: 'intermediate', desc: 'Remove files or directories', syntax: 'rm [-rf] [file]', example: 'rm -rf temp' },
   cp: { diff: 'intermediate', desc: 'Copy files or directories', syntax: 'cp [source] [dest]', example: 'cp file1 file2' },
   mv: { diff: 'intermediate', desc: 'Move or rename files', syntax: 'mv [source] [dest]', example: 'mv old.txt new.txt' },
+  
+  // Text processing
   grep: { diff: 'intermediate', desc: 'Search text using patterns', syntax: 'grep [pattern] [file]', example: 'grep error log.txt' },
-  find: { diff: 'advanced', desc: 'Find files and directories', syntax: 'find [path] [options]', example: 'find . -name "*.txt"' },
-  chmod: { diff: 'advanced', desc: 'Change file permissions', syntax: 'chmod [mode] [file]', example: 'chmod 755 script.sh' },
-  ps: { diff: 'intermediate', desc: 'List running processes', syntax: 'ps [aux]', example: 'ps aux' },
-  kill: { diff: 'advanced', desc: 'Terminate a process', syntax: 'kill [PID]', example: 'kill 1234' },
-  clear: { diff: 'beginner', desc: 'Clear terminal screen', syntax: 'clear', example: 'clear' },
-  date: { diff: 'beginner', desc: 'Show current date and time', syntax: 'date', example: 'date' },
-  whoami: { diff: 'beginner', desc: 'Show current username', syntax: 'whoami', example: 'whoami' },
-  uname: { diff: 'beginner', desc: 'Show system information', syntax: 'uname [-a]', example: 'uname -a' },
-  history: { diff: 'beginner', desc: 'Show command history', syntax: 'history', example: 'history' },
-  touch: { diff: 'beginner', desc: 'Create an empty file or update timestamp', syntax: 'touch [file]', example: 'touch newfile.txt' },
   head: { diff: 'beginner', desc: 'Display first lines of a file', syntax: 'head [-n] [file]', example: 'head -10 file.txt' },
   tail: { diff: 'beginner', desc: 'Display last lines of a file', syntax: 'tail [-n] [file]', example: 'tail -10 file.txt' },
   wc: { diff: 'beginner', desc: 'Count lines, words, and characters', syntax: 'wc [file]', example: 'wc file.txt' },
+  sort: { diff: 'intermediate', desc: 'Sort lines of text', syntax: 'sort [file]', example: 'sort names.txt' },
+  uniq: { diff: 'intermediate', desc: 'Report or omit repeated lines', syntax: 'uniq [file]', example: 'uniq sorted.txt' },
+  cut: { diff: 'advanced', desc: 'Remove sections from each line of files', syntax: 'cut -d [delim] -f [fields] [file]', example: 'cut -d: -f1 /etc/passwd' },
+  
+  // System information
+  date: { diff: 'beginner', desc: 'Show current date and time', syntax: 'date', example: 'date' },
+  whoami: { diff: 'beginner', desc: 'Show current username', syntax: 'whoami', example: 'whoami' },
+  uname: { diff: 'beginner', desc: 'Show system information', syntax: 'uname [-a]', example: 'uname -a' },
+  hostname: { diff: 'beginner', desc: 'Show or set system hostname', syntax: 'hostname [name]', example: 'hostname' },
+  uptime: { diff: 'beginner', desc: 'Show how long system has been running', syntax: 'uptime', example: 'uptime' },
+  free: { diff: 'beginner', desc: 'Display memory usage', syntax: 'free [-h]', example: 'free -h' },
+  df: { diff: 'beginner', desc: 'Report disk space usage', syntax: 'df [-h]', example: 'df -h' },
+  du: { diff: 'intermediate', desc: 'Estimate file space usage', syntax: 'du [-sh] [path]', example: 'du -sh /home' },
+  
+  // Process management
+  ps: { diff: 'intermediate', desc: 'List running processes', syntax: 'ps [aux]', example: 'ps aux' },
+  kill: { diff: 'advanced', desc: 'Terminate a process', syntax: 'kill [PID]', example: 'kill 1234' },
+  pkill: { diff: 'advanced', desc: 'Kill processes by name', syntax: 'pkill [name]', example: 'pkill firefox' },
+  top: { diff: 'intermediate', desc: 'Display system processes in real-time', syntax: 'top', example: 'top' },
+  
+  // User management
+  who: { diff: 'beginner', desc: 'Show who is logged on', syntax: 'who', example: 'who' },
+  users: { diff: 'beginner', desc: 'List logged-in users', syntax: 'users', example: 'users' },
+  id: { diff: 'beginner', desc: 'Show user and group IDs', syntax: 'id [user]', example: 'id kali' },
+  groups: { diff: 'beginner', desc: 'Show group memberships', syntax: 'groups [user]', example: 'groups kali' },
+  useradd: { diff: 'advanced', desc: 'Create a new user', syntax: 'useradd [options] [username]', example: 'sudo useradd john' },
+  userdel: { diff: 'advanced', desc: 'Delete a user account', syntax: 'userdel [username]', example: 'sudo userdel john' },
+  passwd: { diff: 'advanced', desc: 'Change user password', syntax: 'passwd [username]', example: 'sudo passwd john' },
+  su: { diff: 'advanced', desc: 'Switch user or become superuser', syntax: 'su [username]', example: 'su - root' },
+  sudo: { diff: 'advanced', desc: 'Execute a command as superuser', syntax: 'sudo [command]', example: 'sudo apt update' },
+  
+  // File permissions
+  chmod: { diff: 'advanced', desc: 'Change file permissions', syntax: 'chmod [mode] [file]', example: 'chmod 755 script.sh' },
+  chown: { diff: 'advanced', desc: 'Change file owner and group', syntax: 'chown [user]:[group] [file]', example: 'chown kali:users file.txt' },
+  chgrp: { diff: 'advanced', desc: 'Change group ownership', syntax: 'chgrp [group] [file]', example: 'chgrp developers file.txt' },
+  
+  // Network commands
+  ping: { diff: 'intermediate', desc: 'Test network connectivity', syntax: 'ping [host]', example: 'ping google.com' },
+  ifconfig: { diff: 'intermediate', desc: 'Configure network interfaces', syntax: 'ifconfig [interface]', example: 'ifconfig eth0' },
+  netstat: { diff: 'advanced', desc: 'Show network statistics', syntax: 'netstat [-tuln]', example: 'netstat -tuln' },
+  ssh: { diff: 'advanced', desc: 'Secure Shell client', syntax: 'ssh [user@]host', example: 'ssh user@192.168.1.1' },
+  
+  // File finding
+  find: { diff: 'advanced', desc: 'Find files and directories', syntax: 'find [path] [options]', example: 'find . -name "*.txt"' },
+  locate: { diff: 'intermediate', desc: 'Find files by name (database search)', syntax: 'locate [pattern]', example: 'locate .conf' },
+  which: { diff: 'beginner', desc: 'Locate a command', syntax: 'which [command]', example: 'which ls' },
+  
+  // Archive commands
+  tar: { diff: 'advanced', desc: 'Create or extract archive files', syntax: 'tar [options] [archive] [files]', example: 'tar -czf archive.tar.gz folder/' },
+  gzip: { diff: 'intermediate', desc: 'Compress files', syntax: 'gzip [file]', example: 'gzip file.txt' },
+  gunzip: { diff: 'intermediate', desc: 'Decompress files', syntax: 'gunzip [file.gz]', example: 'gunzip file.txt.gz' },
+  
+  // Other useful commands
+  history: { diff: 'beginner', desc: 'Show command history', syntax: 'history', example: 'history' },
+  clear: { diff: 'beginner', desc: 'Clear terminal screen', syntax: 'clear', example: 'clear' },
+  exit: { diff: 'beginner', desc: 'Exit the terminal', syntax: 'exit', example: 'exit' },
+  man: { diff: 'beginner', desc: 'Display manual pages', syntax: 'man [command]', example: 'man ls' },
+  alias: { diff: 'intermediate', desc: 'Create command aliases', syntax: 'alias [name]="[command]"', example: 'alias ll="ls -la"' },
+  unalias: { diff: 'intermediate', desc: 'Remove command aliases', syntax: 'unalias [name]', example: 'unalias ll' },
+  env: { diff: 'intermediate', desc: 'Display or set environment variables', syntax: 'env [var]=[value] [command]', example: 'env' },
+  export: { diff: 'intermediate', desc: 'Set environment variables', syntax: 'export [var]=[value]', example: 'export PATH=$PATH:/usr/local/bin' },
+  sleep: { diff: 'beginner', desc: 'Delay for a specified time', syntax: 'sleep [seconds]', example: 'sleep 5' },
+  yes: { diff: 'beginner', desc: 'Output a string repeatedly', syntax: 'yes [string]', example: 'yes | head -5' },
 };
 
 const CHALLENGES = [
@@ -715,12 +777,18 @@ const CHALLENGES = [
   { id: 'C6', title: 'Kill a Process', obj: 'Terminate process with PID 5678.', diff: 'advanced', xp: 40 },
   { id: 'C7', title: 'File Creator', obj: 'Use `touch` to create "hello.txt".', diff: 'beginner', xp: 15 },
   { id: 'C8', title: 'Head and Tail', obj: 'Use `head` and `tail` on a file.', diff: 'intermediate', xp: 25 },
+  { id: 'C9', title: 'System Info', obj: 'Use `uname -a` to display system info.', diff: 'beginner', xp: 15 },
+  { id: 'C10', title: 'User Management', obj: 'Use `whoami` and `id` to identify yourself.', diff: 'beginner', xp: 15 },
+  { id: 'C11', title: 'Network Ping', obj: 'Use `ping` to test connectivity.', diff: 'intermediate', xp: 20 },
+  { id: 'C12', title: 'Superuser Access', obj: 'Use `sudo` to simulate root access.', diff: 'advanced', xp: 35 },
 ];
 
 const MISSIONS = [
   { id: 'M1', title: 'Filesystem Basics', desc: 'Learn the fundamental file navigation commands.', tasks: ['Use `pwd` to check your current directory', 'Use `ls` to list files', 'Use `cd ..` to go up one level'] },
   { id: 'M2', title: 'File Management', desc: 'Practice creating, copying, and removing files.', tasks: ['Create a file with `touch test.txt`', 'Copy the file with `cp test.txt test2.txt`', 'Remove the file with `rm test2.txt`'] },
   { id: 'M3', title: 'Text Processing', desc: 'Learn to work with text files.', tasks: ['Use `echo` to write text to a file', 'Use `cat` to display the file', 'Use `wc` to count lines in the file'] },
+  { id: 'M4', title: 'System Administration', desc: 'Basic system administration tasks.', tasks: ['Use `whoami` to display your username', 'Use `id` to show user details', 'Use `uname -a` for system info'] },
+  { id: 'M5', title: 'User Management', desc: 'Learn to manage users.', tasks: ['Use `sudo` to run a command as root', 'Use `who` to see logged-in users', 'Use `groups` to see your groups'] },
 ];
 
 // ─────────────────── STATE ───────────────────
@@ -736,6 +804,10 @@ let state = {
   badges: ['First Command'],
   commandHistory: [],
   historyIndex: -1,
+  currentUser: 'kali',
+  isRoot: false,
+  users: ['kali', 'root', 'john', 'alice', 'bob'],
+  aliases: {},
 };
 
 // ─────────────────── DOM REFS ───────────────────
@@ -745,6 +817,9 @@ const termPath = document.getElementById('term-title-path');
 const termClock = document.getElementById('term-clock');
 const xpPill = document.getElementById('xp-pill');
 const levelPill = document.getElementById('level-pill');
+const userPill = document.getElementById('user-pill');
+const promptUser = document.getElementById('prompt-user');
+const promptPath = document.getElementById('prompt-path');
 const helpPanel = document.getElementById('help-panel');
 const helpClose = document.getElementById('help-close');
 const libToggle = document.getElementById('lib-toggle');
@@ -775,7 +850,12 @@ function updateClock() {
 }
 
 function updatePath() {
-  termPath.textContent = `kali@linux: ${state.currentPath}`;
+  const user = state.isRoot ? 'root' : state.currentUser;
+  termPath.textContent = `${user}@linux: ${state.currentPath}`;
+  promptUser.textContent = state.isRoot ? 'root@linux' : `${state.currentUser}@linux`;
+  promptPath.textContent = state.currentPath;
+  userPill.textContent = state.isRoot ? '👤 root' : `👤 ${state.currentUser}`;
+  userPill.style.color = state.isRoot ? 'var(--error)' : 'var(--cyan)';
 }
 
 function updatePills() {
@@ -796,7 +876,7 @@ function renderHistory() {
 }
 
 function renderBadges() {
-  const allBadges = ['First Command', 'File Explorer', 'Directory Master', 'Echo Expert', 'Grep Guru', 'Process Killer', 'File Creator', 'Text Master'];
+  const allBadges = ['First Command', 'File Explorer', 'Directory Master', 'Echo Expert', 'Grep Guru', 'Process Killer', 'File Creator', 'Text Master', 'System Admin', 'User Manager', 'Network Pro', 'Superuser'];
   const unlocked = state.badges;
   badgesWrap.innerHTML = allBadges.map(b => `
     <div class="badge-item ${unlocked.includes(b) ? '' : 'locked'}">
@@ -819,7 +899,6 @@ function renderDashboard() {
     <div class="stat-card"><div class="stat-num">${s.value}</div><div class="stat-label">${s.label}</div></div>
   `).join('');
 
-  // Recent activity
   const recent = state.history.slice(-5).reverse();
   recentActivity.innerHTML = recent.length ? recent.map(h => `
     <div class="mini-row"><span>› ${h.cmd}</span><span>${h.output}</span></div>
@@ -835,8 +914,20 @@ function appendOutput(text, cls = 'line-out') {
   termBody.scrollTop = termBody.scrollHeight;
 }
 
+function resolveAlias(cmd) {
+  const parts = cmd.trim().split(' ');
+  const base = parts[0];
+  if (state.aliases[base]) {
+    const aliasCmd = state.aliases[base];
+    const rest = parts.slice(1).join(' ');
+    return rest ? `${aliasCmd} ${rest}` : aliasCmd;
+  }
+  return cmd;
+}
+
 function runCommand(cmd) {
-  const trimmed = cmd.trim();
+  const resolved = resolveAlias(cmd);
+  const trimmed = resolved.trim();
   if (!trimmed) return;
   
   const parts = trimmed.split(' ');
@@ -844,12 +935,11 @@ function runCommand(cmd) {
   const args = parts.slice(1);
   let output = '';
   
-  // Record history
   state.commandCount++;
   state.commandHistory.push(trimmed);
   state.historyIndex = state.commandHistory.length - 1;
   
-  // Built-in commands
+  // ─── Built-in commands ───
   if (base === 'help') {
     const topic = args[0]?.toLowerCase();
     if (topic && COMMANDS[topic]) {
@@ -885,9 +975,9 @@ function runCommand(cmd) {
     appendOutput(output);
   }
   else if (base === 'ls') {
-    const files = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos', 'projects', 'test.txt'];
+    const files = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos', 'projects', 'test.txt', 'data.txt', 'backup.txt', 'hello.txt', 'file.txt'];
     let showAll = args.includes('-la') || args.includes('-a');
-    let result = showAll ? [...files, '.bashrc', '.config', '.local'] : files;
+    let result = showAll ? [...files, '.bashrc', '.config', '.local', '.profile'] : files;
     if (args.length > 0 && !args[0].startsWith('-') && args[0] !== '~') {
       output = `ls: cannot access '${args[0]}': No such file or directory`;
     } else {
@@ -934,19 +1024,6 @@ function runCommand(cmd) {
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
-  else if (base === 'cat') {
-    if (args.length === 0) {
-      output = 'cat: missing file operand';
-    } else if (args[0] === 'test.txt') {
-      output = 'Hello from Linux CMD! This is a sample file.\nLine 2: Learning terminal commands.\nLine 3: Practice makes perfect.';
-    } else if (args[0] === '/etc/hosts') {
-      output = '127.0.0.1 localhost\n::1 localhost ip6-localhost\n127.0.1.1 kali';
-    } else {
-      output = `cat: ${args[0]}: No such file or directory`;
-    }
-    appendOutput(`$ ${trimmed}`, 'line-in');
-    appendOutput(output);
-  }
   else if (base === 'touch') {
     if (args.length === 0) {
       output = 'touch: missing file operand';
@@ -961,11 +1038,28 @@ function runCommand(cmd) {
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
+  else if (base === 'cat') {
+    if (args.length === 0) {
+      output = 'cat: missing file operand';
+    } else if (args[0] === 'test.txt') {
+      output = 'Hello from Linux CMD! This is a sample file.\nLine 2: Learning terminal commands.\nLine 3: Practice makes perfect.';
+    } else if (args[0] === '/etc/hosts') {
+      output = '127.0.0.1 localhost\n::1 localhost ip6-localhost\n127.0.1.1 kali';
+    } else if (args[0] === 'data.txt') {
+      output = 'user:password:uid:gid\njohn:pass123:1001:1001\nalice:pass456:1002:1002\nbob:pass789:1003:1003';
+    } else {
+      output = `cat: ${args[0]}: No such file or directory`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
   else if (base === 'head') {
     const num = args.includes('-n') ? parseInt(args[args.indexOf('-n') + 1]) || 10 : 10;
     const file = args[args.length - 1] || 'file.txt';
     if (file === 'test.txt') {
       output = `First ${num} lines of ${file}:\nHello from Linux CMD!\nLine 2: Learning terminal commands.`;
+    } else if (file === 'data.txt') {
+      output = `First ${num} lines of ${file}:\nuser:password:uid:gid\njohn:pass123:1001:1001`;
     } else {
       output = `head: ${file}: No such file or directory`;
     }
@@ -977,6 +1071,8 @@ function runCommand(cmd) {
     const file = args[args.length - 1] || 'file.txt';
     if (file === 'test.txt') {
       output = `Last ${num} lines of ${file}:\nLine 2: Learning terminal commands.\nLine 3: Practice makes perfect.`;
+    } else if (file === 'data.txt') {
+      output = `Last ${num} lines of ${file}:\nalice:pass456:1002:1002\nbob:pass789:1003:1003`;
     } else {
       output = `tail: ${file}: No such file or directory`;
     }
@@ -988,6 +1084,8 @@ function runCommand(cmd) {
       output = 'wc: missing file operand';
     } else if (args[0] === 'test.txt') {
       output = `3  8 42 ${args[0]}`;
+    } else if (args[0] === 'data.txt') {
+      output = `3  9 45 ${args[0]}`;
     } else {
       output = `wc: ${args[0]}: No such file or directory`;
     }
@@ -1000,9 +1098,9 @@ function runCommand(cmd) {
     } else {
       const pattern = args[0];
       const file = args[args.length - 1];
-      if (file === 'test.txt' && pattern === 'error') {
+      if (file === 'data.txt' && pattern === 'error') {
         output = `${file}: Found lines matching '${pattern}':\nLine 5: Error connecting to server\nLine 8: Fatal error: permission denied`;
-      } else if (file === 'test.txt') {
+      } else if (file === 'data.txt') {
         output = `${file}: Found lines matching '${pattern}': [simulated]`;
       } else {
         output = `grep: ${file}: No such file or directory`;
@@ -1045,13 +1143,264 @@ function runCommand(cmd) {
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
-  else if (base === 'find') {
-    const path = args[0] || '.';
-    if (args.includes('-name') && args[args.indexOf('-name') + 1]) {
-      const pattern = args[args.indexOf('-name') + 1];
-      output = `Searching ${path} for ${pattern}...\n./file1.txt\n./folder/doc.pdf\n./${pattern.replace(/["']/g, '')}`;
+  else if (base === 'sort') {
+    if (args.length === 0) {
+      output = 'sort: missing file operand';
+    } else if (args[0] === 'names.txt') {
+      output = 'alice\nbob\ncharlie\ndave\neve';
     } else {
-      output = `Searching ${path}...\n./file1.txt\n./folder/doc.pdf\n./test.txt\n./Desktop\n./Documents`;
+      output = `sort: ${args[0]}: No such file or directory`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'uniq') {
+    if (args.length === 0) {
+      output = 'uniq: missing file operand';
+    } else {
+      output = `Unique lines from ${args[0]}: [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'cut') {
+    if (args.length === 0) {
+      output = 'cut: missing options or file';
+    } else {
+      output = `Extracted fields from ${args[args.length-1]}: [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'date') {
+    output = new Date().toString();
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'whoami') {
+    output = state.currentUser;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'uname') {
+    if (args.includes('-a')) {
+      output = 'Linux kali 5.15.0-3-amd64 #1 SMP Debian 5.15.0-3 x86_64 GNU/Linux';
+    } else if (args.includes('-r')) {
+      output = '5.15.0-3-amd64';
+    } else if (args.includes('-s')) {
+      output = 'Linux';
+    } else if (args.includes('-n')) {
+      output = 'kali';
+    } else if (args.includes('-m')) {
+      output = 'x86_64';
+    } else {
+      output = 'Linux';
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'hostname') {
+    if (args.length === 0) {
+      output = 'kali';
+    } else {
+      output = `Hostname changed to ${args[0]}`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'uptime') {
+    output = ` 10:42:31 up 2 days,  3:15,  3 users,  load average: 0.15, 0.08, 0.05`;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'free') {
+    if (args.includes('-h')) {
+      output = '              total        used        free      shared  buff/cache   available\nMem:           7.7Gi       2.1Gi       3.2Gi       256Mi       2.4Gi       5.0Gi\nSwap:          2.0Gi        0Mi       2.0Gi';
+    } else {
+      output = '              total        used        free      shared  buff/cache   available\nMem:       8092340     2214560     3356780      262144     2501000     5246700\nSwap:      2097152           0     2097152';
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'df') {
+    if (args.includes('-h')) {
+      output = 'Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1       100G   45G   55G  45% /\n/dev/sdb1       500G  123G  377G  25% /home';
+    } else {
+      output = 'Filesystem     1K-blocks      Used Available Use% Mounted on\n/dev/sda1      104857600  47185920 57671680  45% /\n/dev/sdb1      524288000 128974848 395313152  25% /home';
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'du') {
+    if (args.includes('-sh')) {
+      output = `4.0K\t${args[args.length-1] || '.'}`;
+    } else {
+      output = `4.0K\t${args[args.length-1] || '.'}`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'ps') {
+    output = '  PID  TTY     TIME     CMD\n 1234  pts/0   00:00:01 bash\n 5678  pts/0   00:00:05 node\n 9012  pts/0   00:00:00 ps\n 3456  pts/1   00:00:02 python';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'kill') {
+    if (args.length === 0) {
+      output = 'kill: missing PID';
+    } else {
+      output = `Process ${args[0]} terminated.`;
+      if (!state.badges.includes('Process Killer')) {
+        state.badges.push('Process Killer');
+        notify('🏆 Unlocked: Process Killer');
+        renderBadges();
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'pkill') {
+    if (args.length === 0) {
+      output = 'pkill: missing process name';
+    } else {
+      output = `Processes named '${args[0]}' terminated.`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'top') {
+    output = 'top - 10:42:31 up 2 days,  3:15,  3 users,  load average: 0.15, 0.08, 0.05\nTasks: 123 total,   2 running, 121 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.1 id,  0.6 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   7902.6 total,   3276.4 free,   2161.5 used,   2464.7 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5120.1 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n 1234 kali      20   0  250968   5124   3844 S   0.7   0.1   0:01.23 bash\n 5678 kali      20   0  512456  12345  10234 S   0.3   0.2   0:00.45 node';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'who') {
+    output = 'kali     pts/0        2026-08-10 10:42 (192.168.1.100)\njohn     pts/1        2026-08-10 09:15 (192.168.1.101)\nalice    pts/2        2026-08-10 08:30 (192.168.1.102)';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'users') {
+    output = 'kali john alice';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'id') {
+    const user = args[0] || state.currentUser;
+    output = `uid=1000(${user}) gid=1000(${user}) groups=1000(${user}),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),120(lpadmin),131(lxd),132(sambashare)`;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'groups') {
+    const user = args[0] || state.currentUser;
+    output = `${user} : ${user} adm cdrom sudo dip plugdev lpadmin lxd sambashare`;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'useradd') {
+    if (args.length === 0) {
+      output = 'useradd: missing username';
+    } else {
+      const username = args[0];
+      if (state.users.includes(username)) {
+        output = `useradd: user '${username}' already exists`;
+      } else {
+        state.users.push(username);
+        output = `User '${username}' created successfully.`;
+        notify(`✅ User '${username}' created`);
+        if (!state.badges.includes('User Manager')) {
+          state.badges.push('User Manager');
+          renderBadges();
+        }
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'userdel') {
+    if (args.length === 0) {
+      output = 'userdel: missing username';
+    } else {
+      const username = args[0];
+      const index = state.users.indexOf(username);
+      if (index === -1 || username === 'root') {
+        output = `userdel: user '${username}' does not exist`;
+      } else {
+        state.users.splice(index, 1);
+        output = `User '${username}' deleted.`;
+        notify(`🗑️ User '${username}' deleted`);
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'passwd') {
+    if (args.length === 0) {
+      output = `Changing password for ${state.currentUser}.\n(current) UNIX password: [simulated]\nNew password: [simulated]\nRetype new password: [simulated]\npasswd: password updated successfully`;
+    } else {
+      const username = args[0];
+      if (!state.users.includes(username)) {
+        output = `passwd: user '${username}' does not exist`;
+      } else {
+        output = `Changing password for ${username}.\nNew password: [simulated]\nRetype new password: [simulated]\npasswd: password updated successfully`;
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'su') {
+    if (args.length === 0) {
+      output = 'su: missing username (try su -)';
+    } else {
+      const target = args[0];
+      if (target === 'root' || target === '-') {
+        if (state.isRoot) {
+          output = 'Already root.';
+        } else {
+          state.isRoot = true;
+          state.currentUser = 'root';
+          output = 'Switched to root (superuser)';
+          updatePath();
+          if (!state.badges.includes('Superuser')) {
+            state.badges.push('Superuser');
+            renderBadges();
+          }
+          notify('🔓 Root access granted!');
+        }
+      } else if (state.users.includes(target)) {
+        state.currentUser = target;
+        state.isRoot = false;
+        output = `Switched to user: ${target}`;
+        updatePath();
+        notify(`👤 Switched to ${target}`);
+      } else {
+        output = `su: user '${target}' does not exist`;
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'sudo') {
+    if (args.length === 0) {
+      output = 'sudo: missing command';
+    } else {
+      const sudoCmd = args.join(' ');
+      const isRoot = state.isRoot || state.currentUser === 'root';
+      if (isRoot || state.currentUser === 'kali') {
+        output = `[sudo] password for ${state.currentUser}: [simulated]\nRunning: ${sudoCmd}`;
+        // Execute the command as root
+        const originalUser = state.currentUser;
+        const originalRoot = state.isRoot;
+        state.isRoot = true;
+        state.currentUser = 'root';
+        // Run the command
+        runCommand(sudoCmd);
+        // Restore user state
+        state.isRoot = originalRoot;
+        state.currentUser = originalUser;
+        updatePath();
+        return;
+      } else {
+        output = `sudo: command not found or permission denied`;
+      }
     }
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
@@ -1065,46 +1414,234 @@ function runCommand(cmd) {
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
-  else if (base === 'ps') {
-    output = '  PID  TTY     TIME     CMD\n 1234  pts/0   00:00:01 bash\n 5678  pts/0   00:00:05 node\n 9012  pts/0   00:00:00 ps';
-    appendOutput(`$ ${trimmed}`, 'line-in');
-    appendOutput(output);
-  }
-  else if (base === 'kill') {
-    if (args.length === 0) {
-      output = 'kill: missing PID';
+  else if (base === 'chown') {
+    if (args.length < 2) {
+      output = 'chown: missing owner or file';
     } else {
-      output = `Process ${args[0]} terminated.`;
+      output = `Owner changed for '${args[1]}' to ${args[0]}`;
     }
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
-  else if (base === 'date') {
-    output = new Date().toString();
-    appendOutput(`$ ${trimmed}`, 'line-in');
-    appendOutput(output);
-  }
-  else if (base === 'whoami') {
-    output = 'kali';
-    appendOutput(`$ ${trimmed}`, 'line-in');
-    appendOutput(output);
-  }
-  else if (base === 'uname') {
-    if (args.includes('-a')) {
-      output = 'Linux kali 5.15.0-3-amd64 #1 SMP Debian 5.15.0-3 x86_64 GNU/Linux';
-    } else if (args.includes('-r')) {
-      output = '5.15.0-3-amd64';
-    } else if (args.includes('-s')) {
-      output = 'Linux';
+  else if (base === 'chgrp') {
+    if (args.length < 2) {
+      output = 'chgrp: missing group or file';
     } else {
-      output = 'Linux';
+      output = `Group changed for '${args[1]}' to ${args[0]}`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'ping') {
+    if (args.length === 0) {
+      output = 'ping: missing host';
+    } else {
+      const host = args[0];
+      output = `PING ${host} (${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}) 56(84) bytes of data.\n64 bytes from ${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}: icmp_seq=1 ttl=64 time=${Math.floor(Math.random()*10+5)} ms\n64 bytes from ${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}.${Math.floor(Math.random()*200+100)}: icmp_seq=2 ttl=64 time=${Math.floor(Math.random()*10+5)} ms\n--- ${host} ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1002ms`;
+      if (!state.badges.includes('Network Pro')) {
+        state.badges.push('Network Pro');
+        renderBadges();
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'ifconfig') {
+    if (args.length === 0 || args[0] === 'eth0') {
+      output = 'eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500\n        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255\n        inet6 fe80::20c:29ff:fe12:3456  prefixlen 64  scopeid 0x20\n        ether 00:0c:29:12:34:56  txqueuelen 1000  (Ethernet)\n        RX packets 12345  bytes 12345678 (11.7 MiB)\n        RX errors 0  dropped 0  overruns 0  frame 0\n        TX packets 6789  bytes 987654 (987.6 KiB)\n        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0\n\nlo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536\n        inet 127.0.0.1  netmask 255.0.0.0\n        inet6 ::1  prefixlen 128  scopeid 0x10\n        loop  txqueuelen 1000  (Local Loopback)\n        RX packets 1234  bytes 123456 (123.4 KiB)\n        RX errors 0  dropped 0  overruns 0  frame 0\n        TX packets 1234  bytes 123456 (123.4 KiB)\n        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0';
+    } else {
+      output = `ifconfig: device '${args[0]}' not found`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'netstat') {
+    if (args.includes('-tuln')) {
+      output = 'Active Internet connections (only servers)\nProto Recv-Q Send-Q Local Address           Foreign Address         State      \ntcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     \ntcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN     \ntcp6       0      0 :::80                   :::*                    LISTEN     \nudp        0      0 0.0.0.0:68              0.0.0.0:*                           \nudp        0      0 0.0.0.0:123             0.0.0.0:*';
+    } else {
+      output = 'Active Internet connections (w/o servers)\nProto Recv-Q Send-Q Local Address           Foreign Address         State      \ntcp        0      0 192.168.1.100:22        192.168.1.101:54321     ESTABLISHED\ntcp        0      0 192.168.1.100:80        192.168.1.102:44321     TIME_WAIT';
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'ssh') {
+    if (args.length === 0) {
+      output = 'ssh: missing host';
+    } else {
+      output = `ssh: connecting to ${args[0]}...\nThe authenticity of host '${args[0]}' can\'t be established.\nAre you sure you want to continue connecting (yes/no)? [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'find') {
+    const path = args[0] || '.';
+    if (args.includes('-name') && args[args.indexOf('-name') + 1]) {
+      const pattern = args[args.indexOf('-name') + 1];
+      output = `Searching ${path} for ${pattern}...\n./file1.txt\n./folder/doc.pdf\n./${pattern.replace(/["']/g, '')}`;
+    } else if (args.includes('-type') && args[args.indexOf('-type') + 1] === 'd') {
+      output = `Searching ${path} for directories...\n./Desktop\n./Documents\n./Downloads\n./Music\n./Pictures\n./Videos\n./projects`;
+    } else if (args.includes('-type') && args[args.indexOf('-type') + 1] === 'f') {
+      output = `Searching ${path} for files...\n./test.txt\n./data.txt\n./backup.txt\n./hello.txt\n./file.txt`;
+    } else {
+      output = `Searching ${path}...\n./file1.txt\n./folder/doc.pdf\n./test.txt\n./Desktop\n./Documents`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'locate') {
+    if (args.length === 0) {
+      output = 'locate: missing pattern';
+    } else {
+      const pattern = args[0];
+      output = `/etc/${pattern}\n/usr/share/${pattern}\n/home/kali/${pattern}`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'which') {
+    if (args.length === 0) {
+      output = 'which: missing command';
+    } else {
+      const cmd = args[0];
+      if (COMMANDS[cmd]) {
+        output = `/usr/bin/${cmd}`;
+      } else {
+        output = `which: no ${cmd} in (/usr/local/bin:/usr/bin:/bin)`;
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'tar') {
+    if (args.length < 3) {
+      output = 'tar: missing options or archive';
+    } else {
+      const option = args[0];
+      if (option === '-czf' || option === '-xzf') {
+        output = `tar: ${option === '-czf' ? 'Creating' : 'Extracting'} archive ${args[1]}... Done.`;
+      } else {
+        output = `tar: Unsupported option. Use -czf (create) or -xzf (extract)`;
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'gzip') {
+    if (args.length === 0) {
+      output = 'gzip: missing file';
+    } else {
+      output = `${args[0]}.gz created.`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'gunzip') {
+    if (args.length === 0) {
+      output = 'gunzip: missing file';
+    } else {
+      output = `${args[0].replace('.gz', '')} decompressed.`;
     }
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
   else if (base === 'history') {
-    const hist = state.history.slice(-10).map((h, i) => `  ${i+1}  ${h.cmd}`).join('\n');
+    const hist = state.history.slice(-15).map((h, i) => `  ${i+1}  ${h.cmd}`).join('\n');
     output = hist || 'No command history.';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'exit') {
+    output = 'Goodbye!';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output, 'line-sys');
+    setTimeout(() => {
+      appendOutput('Session ended. Refresh to start again.', 'line-sys');
+    }, 500);
+  }
+  else if (base === 'man') {
+    if (args.length === 0) {
+      output = 'man: missing command';
+    } else {
+      const cmd = args[0];
+      if (COMMANDS[cmd]) {
+        output = `${cmd.toUpperCase()}(1) - ${COMMANDS[cmd].desc}\n\nSYNOPSIS\n  ${COMMANDS[cmd].syntax}\n\nDESCRIPTION\n  ${COMMANDS[cmd].desc}\n\nEXAMPLES\n  ${COMMANDS[cmd].example}\n\nSEE ALSO\n  help ${cmd}`;
+      } else {
+        output = `No manual entry for ${cmd}`;
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'alias') {
+    if (args.length === 0) {
+      const aliasList = Object.entries(state.aliases).map(([name, cmd]) => `alias ${name}='${cmd}'`).join('\n');
+      output = aliasList || 'No aliases defined.';
+    } else {
+      const parts = trimmed.match(/alias\s+([^=]+)=['"](.+)['"]/);
+      if (parts) {
+        const name = parts[1].trim();
+        const cmd = parts[2];
+        state.aliases[name] = cmd;
+        output = `Alias '${name}' created.`;
+        notify(`🔗 Alias created: ${name}='${cmd}'`);
+      } else {
+        output = 'alias: invalid format. Use: alias name="command"';
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'unalias') {
+    if (args.length === 0) {
+      output = 'unalias: missing name';
+    } else {
+      const name = args[0];
+      if (state.aliases[name]) {
+        delete state.aliases[name];
+        output = `Alias '${name}' removed.`;
+      } else {
+        output = `unalias: ${name}: not found`;
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'env') {
+    output = 'HOME=/home/kali\nPATH=/usr/local/bin:/usr/bin:/bin\nUSER=kali\nSHELL=/bin/bash\nPWD=' + (state.currentPath === '~' ? '/home/kali' : `/home/kali/${state.currentPath}`) + '\nLANG=en_US.UTF-8\nTERM=xterm-256color';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'export') {
+    if (args.length === 0) {
+      output = 'export: missing variable';
+    } else {
+      const parts = args[0].split('=');
+      if (parts.length === 2) {
+        output = `Variable ${parts[0]} set to ${parts[1]}`;
+      } else {
+        output = 'export: invalid format. Use: export VAR=value';
+      }
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'sleep') {
+    if (args.length === 0) {
+      output = 'sleep: missing time';
+    } else {
+      const seconds = parseInt(args[0]);
+      output = `Sleeping for ${seconds} seconds... [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'yes') {
+    if (args.length === 0) {
+      output = 'y\ny\ny\ny\ny\n... (use head to limit output)';
+    } else {
+      const text = args.join(' ');
+      output = `${text}\n${text}\n${text}\n${text}\n${text}\n... (use head to limit output)`;
+    }
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
@@ -1112,6 +1649,15 @@ function runCommand(cmd) {
     appendOutput('$ ', 'line-in');
   }
   else {
+    // Check if it's a user-defined alias
+    if (state.aliases[base]) {
+      const aliasCmd = state.aliases[base];
+      appendOutput(`$ ${trimmed}`, 'line-in');
+      appendOutput(`Alias '${base}' -> '${aliasCmd}'`, 'line-sys');
+      // Run the alias command
+      runCommand(aliasCmd + ' ' + args.join(' '));
+      return;
+    }
     output = `command not found: ${base} (try 'help')`;
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output, 'line-err');
@@ -1149,9 +1695,14 @@ function runCommand(cmd) {
     notify('🏆 Unlocked: Grep Guru');
     renderBadges();
   }
-  if (state.history.some(h => h.cmd.includes('kill')) && !state.badges.includes('Process Killer')) {
-    state.badges.push('Process Killer');
-    notify('🏆 Unlocked: Process Killer');
+  if (state.history.some(h => h.cmd.includes('sudo') || h.cmd.includes('su')) && !state.badges.includes('System Admin')) {
+    state.badges.push('System Admin');
+    notify('🏆 Unlocked: System Admin');
+    renderBadges();
+  }
+  if (state.history.some(h => h.cmd.includes('useradd') || h.cmd.includes('userdel')) && !state.badges.includes('User Manager')) {
+    state.badges.push('User Manager');
+    notify('🏆 Unlocked: User Manager');
     renderBadges();
   }
   if (state.history.some(h => h.cmd.includes('head') || h.cmd.includes('tail') || h.cmd.includes('wc')) && !state.badges.includes('Text Master')) {
@@ -1192,7 +1743,6 @@ function renderLibrary(filter = '') {
   libBody.innerHTML = html;
   libCount.textContent = `${filtered.length} commands`;
   
-  // Click to insert command
   libBody.querySelectorAll('.lib-item').forEach(el => {
     el.addEventListener('click', () => {
       const cmd = el.dataset.cmd;
@@ -1241,7 +1791,6 @@ function renderChallenges(filter = 'all') {
       renderBadges();
       notify(`✅ Challenge complete! +${challenge.xp} XP`);
       
-      // Check if all challenges completed
       if (state.completedChallenges.size === CHALLENGES.length) {
         notify('🎉 All challenges completed! You are a Linux Master!');
       }
@@ -1284,7 +1833,6 @@ function renderPractice() {
         return;
       }
       state.completedMissions.add(key);
-      // Check if all tasks done for this mission
       const mission = MISSIONS.find(m => m.id === missionId);
       const allDone = mission.tasks.every((_, i) => state.completedMissions.has(`${missionId}-${i}`));
       if (allDone && !state.completedMissions.has(missionId)) {
@@ -1337,10 +1885,8 @@ termInput.addEventListener('keydown', (e) => {
     const cmd = termInput.value;
     termInput.value = '';
     runCommand(cmd);
-    // Hide help panel on command
     helpPanel.classList.remove('visible');
   } else if (e.key === 'ArrowUp') {
-    // Command history up
     e.preventDefault();
     if (state.commandHistory.length > 0) {
       if (state.historyIndex > 0) {
@@ -1349,7 +1895,6 @@ termInput.addEventListener('keydown', (e) => {
       termInput.value = state.commandHistory[state.historyIndex] || '';
     }
   } else if (e.key === 'ArrowDown') {
-    // Command history down
     e.preventDefault();
     if (state.commandHistory.length > 0) {
       if (state.historyIndex < state.commandHistory.length - 1) {
@@ -1363,7 +1908,6 @@ termInput.addEventListener('keydown', (e) => {
   }
 });
 
-// Click on terminal to focus input
 document.getElementById('term-window').addEventListener('click', () => {
   termInput.focus();
 });
@@ -1425,8 +1969,9 @@ function init() {
   renderBadges();
   termInput.focus();
   
-  // Welcome banner
-  appendOutput('Welcome to Linux CMD! Type "help" to begin.', 'line-help');
+  appendOutput('Welcome to Linux CMD v3.0!', 'line-help');
+  appendOutput('Type "help" to list all 60+ commands.', 'line-help');
+  appendOutput('New commands: sudo, su, useradd, passwd, ping, and more!', 'line-help');
 }
 
 init();
