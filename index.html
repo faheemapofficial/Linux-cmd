@@ -19,8 +19,8 @@
       --muted: #8b949e;
       --error: #ff5f56;
       --warn: #ffbd2e;
-      --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-      --font-ui: 'Inter', 'Segoe UI', sans-serif;
+      --font-mono: 'Courier New', 'Consolas', monospace;
+      --font-ui: 'Segoe UI', sans-serif;
       --radius: 6px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -268,7 +268,7 @@
     }
     .help-panel .h-opt .flag { color: var(--green); min-width: 44px; }
 
-    /* ────────── professional command library (embedded) ────────── */
+    /* ────────── command library ────────── */
     .cmd-library {
       background: var(--terminal);
       border-top: 1px solid var(--border);
@@ -467,7 +467,7 @@
       transition: 0.15s;
       position: relative;
     }
-    .ch-card:hover { border-color: var(--cyan); }
+    .ch-card:hover { border-color: var(--cyan); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     .ch-card.done { border-color: var(--green); background: rgba(57,255,136,0.04); }
     .ch-card.active-glow { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue) inset; }
     .ch-id { font-family: var(--font-mono); font-size: 10px; color: var(--blue); letter-spacing: 1px; }
@@ -592,988 +592,844 @@
         <div class="path" id="term-title-path">kali@linux: ~</div>
         <div id="term-clock">00:00:00</div>
         <button class="lib-toggle" id="lib-toggle">
-          <span class="icon">📚</span> <span id="lib-toggle-label">Library</span>
+          <span class="icon">📚</span> <span id="lib-toggle-label">Commands</span>
         </button>
       </div>
-      <div class="term-body" id="term-output"></div>
-      <!-- inline help panel -->
-      <div class="help-panel" id="help-panel">
-        <button class="h-close" id="help-close">✕</button>
-        <div class="h-title">
-          <span id="help-title">command</span>
-          <span class="h-diff" id="help-diff">beginner</span>
-        </div>
-        <div class="h-desc" id="help-desc">description</div>
-        <div class="h-syntax" id="help-syntax">syntax</div>
-        <div id="help-options" style="margin:4px 0;"></div>
-        <div class="h-example" id="help-example">example</div>
-      </div>
-      <!-- professional command library -->
-      <div class="cmd-library" id="cmd-library">
-        <div class="lib-header">
-          <span class="lib-badge">📖 command reference</span>
-          <input class="lib-search" id="lib-search" placeholder="filter commands…" spellcheck="false">
-          <span class="lib-count" id="lib-count">0 commands</span>
-          <button class="lib-close" id="lib-close">✕ close</button>
-        </div>
-        <div class="lib-body" id="lib-body"></div>
+      <div class="term-body" id="term-body">
+        <div class="line-sys">Linux Terminal Simulator v2.0</div>
+        <div class="line-sys">Type <span class="line-help">help</span> to list commands or <span class="line-help">clear</span> to clear screen.</div>
+        <div class="line-sys">─────────────────────────────────────────────</div>
+        <div class="line-sys">💡 Tip: Click the 📚 Commands button for a list of all commands</div>
       </div>
       <div class="term-inputline">
-        <span class="p1" id="prompt-user">┌──(kali㉿linux)-[<span id="prompt-path">~</span>]</span>
+        <span class="p1">kali@linux</span>:<span class="p2">~</span>$ 
+        <input type="text" id="term-input" placeholder="Enter command..." autofocus>
       </div>
-      <div class="term-inputline" style="border-top:none;padding-top:0;">
-        <span class="p2">└─$</span>
-        <input type="text" id="term-input" autofocus spellcheck="false" autocomplete="off" placeholder="try 'help'">
+    </div>
+    
+    <!-- help panel -->
+    <div class="help-panel" id="help-panel">
+      <button class="h-close" id="help-close">✕</button>
+      <div class="h-title" id="help-title">help <span class="h-diff beginner">beginner</span></div>
+      <div class="h-desc" id="help-desc">Display available commands.</div>
+      <div class="h-syntax" id="help-syntax">syntax: help [command]</div>
+      <div class="h-example" id="help-example">example: help ls</div>
+    </div>
+
+    <!-- command library -->
+    <div class="cmd-library" id="cmd-library">
+      <div class="lib-header">
+        <span class="lib-badge">📖 command library</span>
+        <input class="lib-search" id="lib-search" placeholder="filter commands..." />
+        <span class="lib-count" id="lib-count">0 commands</span>
+        <button class="lib-close" id="lib-close">✕ close</button>
       </div>
+      <div class="lib-body" id="lib-body"></div>
     </div>
   </div>
 
   <!-- ========== PRACTICE ========== -->
   <div id="sec-practice" class="section">
-    <div class="section-title">Guided <b>Practice Missions</b></div>
-    <div id="mission-list"></div>
+    <div class="section-title">📋 <b>practice missions</b></div>
+    <div id="practice-container"></div>
   </div>
 
   <!-- ========== CHALLENGES ========== -->
   <div id="sec-challenges" class="section">
-    <div class="section-title">Skill <b>Challenges</b></div>
+    <div class="section-title">⚡ <b>challenges</b></div>
     <div class="diff-filter" id="diff-filter">
-      <button class="active" data-d="all">All</button>
-      <button data-d="beginner">Beginner</button>
-      <button data-d="intermediate">Intermediate</button>
-      <button data-d="advanced">Advanced</button>
+      <button class="active" data-diff="all">all</button>
+      <button data-diff="beginner">beginner</button>
+      <button data-diff="intermediate">intermediate</button>
+      <button data-diff="advanced">advanced</button>
     </div>
-    <div class="grid" id="challenge-grid"></div>
+    <div class="grid" id="challenges-grid"></div>
   </div>
 
   <!-- ========== HISTORY ========== -->
   <div id="sec-history" class="section">
-    <div class="section-title">Command <b>History</b></div>
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
-      <table class="hist-table">
-        <thead><tr><th>#</th><th>Command</th></tr></thead>
-        <tbody id="hist-body"></tbody>
+    <div class="section-title">⏱️ <b>command history</b></div>
+    <div style="overflow-x:auto;">
+      <table class="hist-table" id="history-table">
+        <thead><tr><th>#</th><th>command</th><th>output</th></tr></thead>
+        <tbody id="history-body"></tbody>
       </table>
-      <div class="hist-empty" id="hist-empty">No commands executed yet.</div>
     </div>
   </div>
 
   <!-- ========== DASHBOARD ========== -->
   <div id="sec-dashboard" class="section">
-    <div class="section-title">Operator <b>Dashboard</b></div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-num" id="d-cmds">0</div><div class="stat-label">Commands Executed</div></div>
-      <div class="stat-card"><div class="stat-num" id="d-learned">0</div><div class="stat-label">Commands Learned</div></div>
-      <div class="stat-card"><div class="stat-num" id="d-ch">0</div><div class="stat-label">Challenges Done</div></div>
-      <div class="stat-card"><div class="stat-num" id="d-xp">0</div><div class="stat-label">Total XP</div></div>
-    </div>
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:14px;">
-      <div class="mini-row"><span>Level</span><b id="d-level">LEVEL 01</b></div>
-      <div class="progress-track"><div class="progress-fill" id="d-progress" style="width:0%"></div></div>
-    </div>
+    <div class="section-title">📊 <b>dashboard</b></div>
+    <div class="stat-grid" id="stat-grid"></div>
     <div class="two-col">
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Recent Commands</div>
-        <div id="d-recent"></div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin:10px 0 8px;">🏅 badges</div>
+        <div class="badges-wrap" id="badges-wrap"></div>
       </div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Most Used</div>
-        <div id="d-most"></div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin:10px 0 8px;">📈 recent activity</div>
+        <div id="recent-activity"></div>
       </div>
-    </div>
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:16px;">
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Badges</div>
-      <div class="badges-wrap" id="badge-container"></div>
     </div>
   </div>
 
-  <div id="notif" class="notif">Linux CMD ready</div>
+  <!-- notification -->
+  <div class="notif" id="notif"></div>
 </div>
 
 <script>
-/* ================================================================
-   1. STATE
-================================================================ */
-const state = {
+// ─────────────────── DATA ───────────────────
+const COMMANDS = {
+  help: { diff: 'beginner', desc: 'Show help for commands', syntax: 'help [command]', example: 'help ls' },
+  ls: { diff: 'beginner', desc: 'List directory contents', syntax: 'ls [-la] [path]', example: 'ls -la /home' },
+  cd: { diff: 'beginner', desc: 'Change directory', syntax: 'cd [path]', example: 'cd /var/log' },
+  pwd: { diff: 'beginner', desc: 'Print working directory', syntax: 'pwd', example: 'pwd' },
+  echo: { diff: 'beginner', desc: 'Display a line of text', syntax: 'echo [text]', example: 'echo "Hello world"' },
+  cat: { diff: 'beginner', desc: 'Concatenate and display files', syntax: 'cat [file]', example: 'cat /etc/hosts' },
+  mkdir: { diff: 'beginner', desc: 'Create a directory', syntax: 'mkdir [name]', example: 'mkdir test' },
+  rm: { diff: 'intermediate', desc: 'Remove files or directories', syntax: 'rm [-rf] [file]', example: 'rm -rf temp' },
+  cp: { diff: 'intermediate', desc: 'Copy files or directories', syntax: 'cp [source] [dest]', example: 'cp file1 file2' },
+  mv: { diff: 'intermediate', desc: 'Move or rename files', syntax: 'mv [source] [dest]', example: 'mv old.txt new.txt' },
+  grep: { diff: 'intermediate', desc: 'Search text using patterns', syntax: 'grep [pattern] [file]', example: 'grep error log.txt' },
+  find: { diff: 'advanced', desc: 'Find files and directories', syntax: 'find [path] [options]', example: 'find . -name "*.txt"' },
+  chmod: { diff: 'advanced', desc: 'Change file permissions', syntax: 'chmod [mode] [file]', example: 'chmod 755 script.sh' },
+  ps: { diff: 'intermediate', desc: 'List running processes', syntax: 'ps [aux]', example: 'ps aux' },
+  kill: { diff: 'advanced', desc: 'Terminate a process', syntax: 'kill [PID]', example: 'kill 1234' },
+  clear: { diff: 'beginner', desc: 'Clear terminal screen', syntax: 'clear', example: 'clear' },
+  date: { diff: 'beginner', desc: 'Show current date and time', syntax: 'date', example: 'date' },
+  whoami: { diff: 'beginner', desc: 'Show current username', syntax: 'whoami', example: 'whoami' },
+  uname: { diff: 'beginner', desc: 'Show system information', syntax: 'uname [-a]', example: 'uname -a' },
+  history: { diff: 'beginner', desc: 'Show command history', syntax: 'history', example: 'history' },
+  touch: { diff: 'beginner', desc: 'Create an empty file or update timestamp', syntax: 'touch [file]', example: 'touch newfile.txt' },
+  head: { diff: 'beginner', desc: 'Display first lines of a file', syntax: 'head [-n] [file]', example: 'head -10 file.txt' },
+  tail: { diff: 'beginner', desc: 'Display last lines of a file', syntax: 'tail [-n] [file]', example: 'tail -10 file.txt' },
+  wc: { diff: 'beginner', desc: 'Count lines, words, and characters', syntax: 'wc [file]', example: 'wc file.txt' },
+};
+
+const CHALLENGES = [
+  { id: 'C1', title: 'First Steps', obj: 'Use `ls` to see files.', diff: 'beginner', xp: 10 },
+  { id: 'C2', title: 'Make a Directory', obj: 'Create a folder named "projects".', diff: 'beginner', xp: 15 },
+  { id: 'C3', title: 'Echo a Message', obj: 'Use `echo` to print "Hello Linux".', diff: 'beginner', xp: 10 },
+  { id: 'C4', title: 'Search with grep', obj: 'Find "error" in a text file.', diff: 'intermediate', xp: 25 },
+  { id: 'C5', title: 'Copy a File', obj: 'Copy "data.txt" to "backup.txt".', diff: 'intermediate', xp: 20 },
+  { id: 'C6', title: 'Kill a Process', obj: 'Terminate process with PID 5678.', diff: 'advanced', xp: 40 },
+  { id: 'C7', title: 'File Creator', obj: 'Use `touch` to create "hello.txt".', diff: 'beginner', xp: 15 },
+  { id: 'C8', title: 'Head and Tail', obj: 'Use `head` and `tail` on a file.', diff: 'intermediate', xp: 25 },
+];
+
+const MISSIONS = [
+  { id: 'M1', title: 'Filesystem Basics', desc: 'Learn the fundamental file navigation commands.', tasks: ['Use `pwd` to check your current directory', 'Use `ls` to list files', 'Use `cd ..` to go up one level'] },
+  { id: 'M2', title: 'File Management', desc: 'Practice creating, copying, and removing files.', tasks: ['Create a file with `touch test.txt`', 'Copy the file with `cp test.txt test2.txt`', 'Remove the file with `rm test2.txt`'] },
+  { id: 'M3', title: 'Text Processing', desc: 'Learn to work with text files.', tasks: ['Use `echo` to write text to a file', 'Use `cat` to display the file', 'Use `wc` to count lines in the file'] },
+];
+
+// ─────────────────── STATE ───────────────────
+let state = {
   xp: 0,
-  commandsExec: 0,
-  challengesDone: new Set(),
-  learnedCommands: new Set(),
-  favorites: [],
-  activeChallenge: null,
-  activeMissionTaskState: {},
-  badges: new Set(),
+  level: 1,
   history: [],
-  historyPos: 0,
-  cmdFreq: {},
-  currentPath: ['~']
+  completedChallenges: new Set(),
+  completedMissions: new Set(),
+  currentPath: '~',
+  currentDir: '/home/kali',
+  commandCount: 0,
+  badges: ['First Command'],
+  commandHistory: [],
+  historyIndex: -1,
 };
 
-/* ================================================================
-   2. VIRTUAL FILESYSTEM
-================================================================ */
-const fsTree = {
-  name:'~', type:'dir', perms:'drwxr-xr-x',
-  children:[
-    { name:'Documents', type:'dir', perms:'drwxr-xr-x', children:[
-      { name:'todo.txt', type:'file', perms:'-rw-r--r--', content:'1. Complete challenges\n2. Earn XP\n3. Master grep' },
-      { name:'creds.txt', type:'file', perms:'-rw-------', content:'admin:linux123\nuser:password' }
-    ]},
-    { name:'Downloads', type:'dir', perms:'drwxr-xr-x', children:[
-      { name:'tools.zip', type:'file', perms:'-rw-r--r--', content:'[binary archive]' }
-    ]},
-    { name:'scripts', type:'dir', perms:'-rwxr-xr-x', children:[
-      { name:'recon.sh', type:'file', perms:'-rwxr-xr-x', content:'#!/bin/bash\necho "recon started"' }
-    ]},
-    { name:'training', type:'dir', perms:'drwxr-xr-x', children:[
-      { name:'missions', type:'dir', perms:'drwxr-xr-x', children:[
-        { name:'secret.txt', type:'file', perms:'-rw-r--r--', content:'FLAG{find_master}' }
-      ]}
-    ]},
-    { name:'notes.txt', type:'file', perms:'-rw-r--r--', content:'Linux commands: ls, cd, pwd, cat, grep' },
-    { name:'welcome.txt', type:'file', perms:'-rw-r--r--', content:'Welcome to Linux CMD! Type "help" to begin.' },
-    { name:'flag.txt', type:'file', perms:'-rw-r--r--', content:'FLAG{linux_cmd_master}' }
-  ]
-};
+// ─────────────────── DOM REFS ───────────────────
+const termBody = document.getElementById('term-body');
+const termInput = document.getElementById('term-input');
+const termPath = document.getElementById('term-title-path');
+const termClock = document.getElementById('term-clock');
+const xpPill = document.getElementById('xp-pill');
+const levelPill = document.getElementById('level-pill');
+const helpPanel = document.getElementById('help-panel');
+const helpClose = document.getElementById('help-close');
+const libToggle = document.getElementById('lib-toggle');
+const libLibrary = document.getElementById('cmd-library');
+const libBody = document.getElementById('lib-body');
+const libSearch = document.getElementById('lib-search');
+const libCount = document.getElementById('lib-count');
+const libClose = document.getElementById('lib-close');
+const notif = document.getElementById('notif');
+const historyBody = document.getElementById('history-body');
+const challengesGrid = document.getElementById('challenges-grid');
+const practiceContainer = document.getElementById('practice-container');
+const statGrid = document.getElementById('stat-grid');
+const badgesWrap = document.getElementById('badges-wrap');
+const recentActivity = document.getElementById('recent-activity');
 
-function getNode(pathArr){
-  let node = fsTree;
-  for(let i=1;i<pathArr.length;i++){
-    if(!node.children) return null;
-    let next = node.children.find(c=>c.name===pathArr[i]);
-    if(!next) return null;
-    node = next;
+// ─────────────────── HELPERS ───────────────────
+function notify(msg) {
+  notif.textContent = msg;
+  notif.classList.add('show');
+  clearTimeout(notif._timer);
+  notif._timer = setTimeout(() => notif.classList.remove('show'), 2800);
+}
+
+function updateClock() {
+  const d = new Date();
+  termClock.textContent = d.toTimeString().slice(0,8);
+}
+
+function updatePath() {
+  termPath.textContent = `kali@linux: ${state.currentPath}`;
+}
+
+function updatePills() {
+  xpPill.textContent = `${state.xp} XP`;
+  const lvl = Math.floor(state.xp / 50) + 1;
+  state.level = lvl;
+  levelPill.textContent = `LEVEL ${String(lvl).padStart(2,'0')}`;
+}
+
+function renderHistory() {
+  if (state.history.length === 0) {
+    historyBody.innerHTML = `<tr><td colspan="3" class="hist-empty">no commands yet</td></tr>`;
+    return;
   }
-  return node;
+  historyBody.innerHTML = state.history.map((h, i) => `
+    <tr><td class="idx">${i+1}</td><td>${h.cmd}</td><td>${h.output}</td></tr>
+  `).join('');
 }
-function pathToStr(pathArr){ return pathArr.length===1 ? '~' : pathArr.join('/'); }
-function shortDir(pathArr){ return pathArr[pathArr.length-1]==='~'?'~':pathArr[pathArr.length-1]; }
-function resolveInput(raw){
-  if(!raw) return state.currentPath.slice();
-  if(raw==='~') return ['~'];
-  let parts = raw.split('/').filter(p=>p!=='');
-  let cur = raw.startsWith('~') ? ['~'] : state.currentPath.slice();
-  if(raw.startsWith('~/')) parts = raw.slice(2).split('/').filter(p=>p!=='');
-  else if(raw==='~') parts=[];
-  for(let p of parts){
-    if(p==='.') continue;
-    if(p==='..'){ if(cur.length>1) cur.pop(); continue; }
-    cur.push(p);
+
+function renderBadges() {
+  const allBadges = ['First Command', 'File Explorer', 'Directory Master', 'Echo Expert', 'Grep Guru', 'Process Killer', 'File Creator', 'Text Master'];
+  const unlocked = state.badges;
+  badgesWrap.innerHTML = allBadges.map(b => `
+    <div class="badge-item ${unlocked.includes(b) ? '' : 'locked'}">
+      <span class="bd-dot" style="background:${unlocked.includes(b) ? 'var(--green)' : 'var(--border)'};"></span>
+      ${b}
+    </div>
+  `).join('');
+}
+
+function renderDashboard() {
+  const stats = [
+    { label: 'XP', value: state.xp },
+    { label: 'Level', value: state.level },
+    { label: 'Commands Run', value: state.commandCount },
+    { label: 'Challenges Done', value: state.completedChallenges.size },
+    { label: 'Missions Done', value: state.completedMissions.size },
+    { label: 'Badges', value: state.badges.length },
+  ];
+  statGrid.innerHTML = stats.map(s => `
+    <div class="stat-card"><div class="stat-num">${s.value}</div><div class="stat-label">${s.label}</div></div>
+  `).join('');
+
+  // Recent activity
+  const recent = state.history.slice(-5).reverse();
+  recentActivity.innerHTML = recent.length ? recent.map(h => `
+    <div class="mini-row"><span>› ${h.cmd}</span><span>${h.output}</span></div>
+  `).join('') : '<div class="mini-row" style="color:var(--muted);">no activity yet</div>';
+}
+
+// ─────────────────── TERMINAL CORE ───────────────────
+function appendOutput(text, cls = 'line-out') {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = text;
+  termBody.appendChild(div);
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+function runCommand(cmd) {
+  const trimmed = cmd.trim();
+  if (!trimmed) return;
+  
+  const parts = trimmed.split(' ');
+  const base = parts[0].toLowerCase();
+  const args = parts.slice(1);
+  let output = '';
+  
+  // Record history
+  state.commandCount++;
+  state.commandHistory.push(trimmed);
+  state.historyIndex = state.commandHistory.length - 1;
+  
+  // Built-in commands
+  if (base === 'help') {
+    const topic = args[0]?.toLowerCase();
+    if (topic && COMMANDS[topic]) {
+      const c = COMMANDS[topic];
+      output = `${topic}: ${c.desc}\nsyntax: ${c.syntax}\nexample: ${c.example}`;
+      showHelp(topic);
+    } else if (topic) {
+      output = `No help found for '${topic}'`;
+      helpPanel.classList.remove('visible');
+    } else {
+      const list = Object.keys(COMMANDS).sort().join(', ');
+      output = `Available commands: ${list}\nType 'help <command>' for details.`;
+      showHelp('help');
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
   }
-  return cur;
-}
-
-/* ================================================================
-   3. COMMANDS
-================================================================ */
-const CAT_LABELS = {
-  nav:'Navigation', file:'File Management', read:'File Reading', text:'Text Processing',
-  sys:'System Information', proc:'Process Management', net:'Networking', perm:'Permissions',
-  arch:'Archives', pkg:'Package Management', shell:'Shell Builtins'
-};
-
-function fmtListing(node){
-  return (node.children||[]).map(c=>({ name:c.name, perms:c.perms, isDir:c.type==='dir' })).sort((a,b)=>a.name.localeCompare(b.name));
-}
-
-const commands = {
-  pwd:{ cat:'nav', diff:'beginner', desc:'Print the full path of the working directory.', syntax:'pwd', options:[], example:'pwd',
-    run:()=>({out:'/home/'+pathToStr(state.currentPath).replace('~','kali')}) },
-  ls:{ cat:'nav', diff:'beginner', desc:'List directory contents.', syntax:'ls [OPTIONS] [PATH]',
-    options:[['-a','Show hidden files'],['-l','Long listing format'],['-la','Combine -l and -a']],
-    example:'ls -la',
-    run:(args)=>{
-      let flags = args.filter(a=>a.startsWith('-')).join('');
-      let target = args.find(a=>!a.startsWith('-'));
-      let node = target ? getNode(resolveInput(target)) : getNode(state.currentPath);
-      if(!node || node.type!=='dir') return {err:`ls: cannot access '${target||''}': No such file or directory`};
-      let items = fmtListing(node);
-      if(!flags.includes('a')) items = items.filter(i=>!i.name.startsWith('.'));
-      if(flags.includes('l')){
-        return {out: items.map(i=>`${i.perms}  1 kali kali  ${i.isDir?'4096':Math.floor(Math.random()*3000+120)}  Jan 12 09:${(10+items.indexOf(i)).toString().padStart(2,'0')}  ${i.name}`).join('\n') || '(empty directory)'};
+  else if (base === 'clear') {
+    termBody.innerHTML = '';
+    appendOutput('$ clear', 'line-in');
+    appendOutput('Screen cleared.', 'line-sys');
+    output = 'Screen cleared.';
+  }
+  else if (base === 'echo') {
+    const text = args.join(' ') || '';
+    output = text;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'pwd') {
+    output = state.currentPath === '~' ? '/home/kali' : `/home/kali/${state.currentPath.replace('~/', '')}`;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'ls') {
+    const files = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos', 'projects', 'test.txt'];
+    let showAll = args.includes('-la') || args.includes('-a');
+    let result = showAll ? [...files, '.bashrc', '.config', '.local'] : files;
+    if (args.length > 0 && !args[0].startsWith('-') && args[0] !== '~') {
+      output = `ls: cannot access '${args[0]}': No such file or directory`;
+    } else {
+      output = result.join('  ');
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'cd') {
+    const target = args[0] || '~';
+    if (target === '~' || target === '/home/kali' || target === '') {
+      state.currentPath = '~';
+      output = 'Changed to home directory';
+    } else if (target === '..') {
+      if (state.currentPath === '~') {
+        state.currentPath = '/home';
+      } else {
+        const parts = state.currentPath.split('/');
+        parts.pop();
+        state.currentPath = parts.join('/') || '/';
       }
-      return {out: items.map(i=>i.name).join('    ') || '(empty directory)'};
-    }},
-  cd:{ cat:'nav', diff:'beginner', desc:'Change the current working directory.', syntax:'cd [PATH]', options:[['~','Home directory'],['..','Parent directory']],
-    example:'cd Documents',
-    run:(args)=>{
-      if(!args[0] || args[0]==='~'){ state.currentPath=['~']; updatePrompt(); return {out:''}; }
-      let newPath = resolveInput(args[0]);
-      let node = getNode(newPath);
-      if(node && node.type==='dir'){ state.currentPath=newPath; updatePrompt(); return {out:''}; }
-      return {err:`bash: cd: ${args[0]}: No such file or directory`};
-    }},
-  tree:{ cat:'nav', diff:'intermediate', desc:'Display directory structure as a tree.', syntax:'tree [PATH]', options:[],
-    example:'tree',
-    run:(args)=>{
-      let node = args[0] ? getNode(resolveInput(args[0])) : getNode(state.currentPath);
-      if(!node || node.type!=='dir') return {err:'tree: not a directory'};
-      let lines=[node.name];
-      function walk(n, prefix){
-        (n.children||[]).forEach((c,i)=>{
-          let last = i===n.children.length-1;
-          lines.push(prefix + (last?'└── ':'├── ') + c.name + (c.type==='dir'?'/':''));
-          if(c.type==='dir') walk(c, prefix + (last?'    ':'│   '));
-        });
+      output = 'Changed to parent directory';
+    } else if (target === '/') {
+      state.currentPath = '/';
+      output = 'Changed to root directory';
+    } else if (target === 'Desktop' || target === 'Documents' || target === 'Downloads' || 
+               target === 'Music' || target === 'Pictures' || target === 'Videos' || 
+               target === 'projects') {
+      state.currentPath = state.currentPath === '~' ? `~/${target}` : `${state.currentPath}/${target}`;
+      output = `Changed to ${state.currentPath}`;
+    } else {
+      output = `cd: no such file or directory: ${target}`;
+    }
+    updatePath();
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'mkdir') {
+    if (args.length === 0) {
+      output = 'mkdir: missing operand';
+    } else {
+      output = `Directory '${args[0]}' created.`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'cat') {
+    if (args.length === 0) {
+      output = 'cat: missing file operand';
+    } else if (args[0] === 'test.txt') {
+      output = 'Hello from Linux CMD! This is a sample file.\nLine 2: Learning terminal commands.\nLine 3: Practice makes perfect.';
+    } else if (args[0] === '/etc/hosts') {
+      output = '127.0.0.1 localhost\n::1 localhost ip6-localhost\n127.0.1.1 kali';
+    } else {
+      output = `cat: ${args[0]}: No such file or directory`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'touch') {
+    if (args.length === 0) {
+      output = 'touch: missing file operand';
+    } else {
+      output = `File '${args[0]}' created/updated.`;
+      if (!state.badges.includes('File Creator')) {
+        state.badges.push('File Creator');
+        notify('🏆 Unlocked: File Creator');
+        renderBadges();
       }
-      walk(node,'');
-      addXP(6);
-      return {out: lines.join('\n')};
-    }},
-  find:{ cat:'nav', diff:'intermediate', desc:'Search for files within a directory hierarchy.', syntax:'find [PATH] -name PATTERN', options:[['-name','Match by filename']],
-    example:'find ~/training -name secret.txt',
-    run:(args)=>{
-      let nameIdx = args.indexOf('-name');
-      let pattern = nameIdx>=0 ? args[nameIdx+1] : null;
-      let startArgs = args.slice(0, nameIdx>=0?nameIdx:args.length).filter(a=>!a.startsWith('-'));
-      let start = startArgs[0] ? getNode(resolveInput(startArgs[0])) : getNode(state.currentPath);
-      let startPath = startArgs[0] ? resolveInput(startArgs[0]) : state.currentPath;
-      if(!start) return {err:'find: no such directory'};
-      let results=[];
-      function walk(n, p){
-        if(!pattern || n.name===pattern) results.push(p.join('/'));
-        (n.children||[]).forEach(c=>walk(c, p.concat(c.name)));
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'head') {
+    const num = args.includes('-n') ? parseInt(args[args.indexOf('-n') + 1]) || 10 : 10;
+    const file = args[args.length - 1] || 'file.txt';
+    if (file === 'test.txt') {
+      output = `First ${num} lines of ${file}:\nHello from Linux CMD!\nLine 2: Learning terminal commands.`;
+    } else {
+      output = `head: ${file}: No such file or directory`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'tail') {
+    const num = args.includes('-n') ? parseInt(args[args.indexOf('-n') + 1]) || 10 : 10;
+    const file = args[args.length - 1] || 'file.txt';
+    if (file === 'test.txt') {
+      output = `Last ${num} lines of ${file}:\nLine 2: Learning terminal commands.\nLine 3: Practice makes perfect.`;
+    } else {
+      output = `tail: ${file}: No such file or directory`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'wc') {
+    if (args.length === 0) {
+      output = 'wc: missing file operand';
+    } else if (args[0] === 'test.txt') {
+      output = `3  8 42 ${args[0]}`;
+    } else {
+      output = `wc: ${args[0]}: No such file or directory`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'grep') {
+    if (args.length < 2) {
+      output = 'grep: missing pattern or file';
+    } else {
+      const pattern = args[0];
+      const file = args[args.length - 1];
+      if (file === 'test.txt' && pattern === 'error') {
+        output = `${file}: Found lines matching '${pattern}':\nLine 5: Error connecting to server\nLine 8: Fatal error: permission denied`;
+      } else if (file === 'test.txt') {
+        output = `${file}: Found lines matching '${pattern}': [simulated]`;
+      } else {
+        output = `grep: ${file}: No such file or directory`;
       }
-      walk(start, startPath);
-      addXP(10);
-      if(results.length && pattern) awardBadge('FILE_HUNTER');
-      return {out: results.join('\n') || 'find: no matching files'};
-    }},
-  mkdir:{ cat:'file', diff:'beginner', desc:'Create a new directory.', syntax:'mkdir [-p] NAME', options:[['-p','Create parent directories as needed']],
-    example:'mkdir myfolder',
-    run:(args)=>{
-      let name = args.filter(a=>!a.startsWith('-')).pop();
-      if(!name) return {err:'mkdir: missing operand'};
-      let node = getNode(state.currentPath);
-      if(node.children.some(c=>c.name===name)) return {err:`mkdir: cannot create directory '${name}': File exists`};
-      node.children.push({name, type:'dir', perms:'drwxr-xr-x', children:[]});
-      addXP(10);
-      return {out:''};
-    }},
-  touch:{ cat:'file', diff:'beginner', desc:'Create an empty file, or update its timestamp.', syntax:'touch FILENAME', options:[],
-    example:'touch test.txt',
-    run:(args)=>{
-      let name = args[0]; if(!name) return {err:'touch: missing file operand'};
-      let node = getNode(state.currentPath);
-      if(!node.children.some(c=>c.name===name)) node.children.push({name, type:'file', perms:'-rw-r--r--', content:''});
-      addXP(5);
-      return {out:''};
-    }},
-  cp:{ cat:'file', diff:'intermediate', desc:'Copy files or directories.', syntax:'cp SOURCE DEST', options:[],
-    example:'cp notes.txt notes_backup.txt',
-    run:(args)=>{
-      if(args.length<2) return {err:'cp: missing destination file operand'};
-      let node = getNode(state.currentPath);
-      let src = node.children.find(c=>c.name===args[0]);
-      if(!src) return {err:`cp: cannot stat '${args[0]}': No such file or directory`};
-      let copy = JSON.parse(JSON.stringify(src)); copy.name = args[1];
-      node.children.push(copy); addXP(8);
-      return {out:''};
-    }},
-  mv:{ cat:'file', diff:'intermediate', desc:'Move or rename files and directories.', syntax:'mv SOURCE DEST', options:[],
-    example:'mv notes.txt archive_notes.txt',
-    run:(args)=>{
-      if(args.length<2) return {err:'mv: missing destination file operand'};
-      let node = getNode(state.currentPath);
-      let src = node.children.find(c=>c.name===args[0]);
-      if(!src) return {err:`mv: cannot stat '${args[0]}': No such file or directory`};
-      src.name = args[1]; addXP(8);
-      return {out:''};
-    }},
-  rm:{ cat:'file', diff:'intermediate', desc:'Remove files or directories.', syntax:'rm [-r] TARGET', options:[['-r','Remove directories recursively']],
-    example:'rm test.txt',
-    run:(args)=>{
-      let flags = args.filter(a=>a.startsWith('-')).join('');
-      let name = args.find(a=>!a.startsWith('-'));
-      if(!name) return {err:'rm: missing operand'};
-      let node = getNode(state.currentPath);
-      let idx = node.children.findIndex(c=>c.name===name);
-      if(idx<0) return {err:`rm: cannot remove '${name}': No such file or directory`};
-      if(node.children[idx].type==='dir' && !flags.includes('r')) return {err:`rm: cannot remove '${name}': Is a directory`};
-      node.children.splice(idx,1); addXP(6);
-      return {out:''};
-    }},
-  rmdir:{ cat:'file', diff:'beginner', desc:'Remove an empty directory.', syntax:'rmdir NAME', options:[],
-    example:'rmdir myfolder',
-    run:(args)=>{
-      let node = getNode(state.currentPath);
-      let idx = node.children.findIndex(c=>c.name===args[0]);
-      if(idx<0) return {err:`rmdir: failed to remove '${args[0]}': No such file or directory`};
-      if(node.children[idx].type!=='dir') return {err:`rmdir: failed to remove '${args[0]}': Not a directory`};
-      if((node.children[idx].children||[]).length) return {err:`rmdir: failed to remove '${args[0]}': Directory not empty`};
-      node.children.splice(idx,1);
-      return {out:''};
-    }},
-  file:{ cat:'file', diff:'beginner', desc:'Determine file type.', syntax:'file NAME', options:[],
-    example:'file recon.sh',
-    run:(args)=>{
-      let node = getNode(state.currentPath);
-      let f = node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`file: cannot open '${args[0]}' (No such file or directory)`};
-      if(f.type==='dir') return {out:`${args[0]}: directory`};
-      let ext=(f.name.split('.').pop()||'').toLowerCase();
-      let type = {sh:'Bourne-Again shell script, ASCII text executable', txt:'ASCII text', zip:'Zip archive data'}[ext] || 'ASCII text';
-      return {out:`${args[0]}: ${type}`};
-    }},
-  stat:{ cat:'file', diff:'intermediate', desc:'Display detailed file status.', syntax:'stat NAME', options:[],
-    example:'stat notes.txt',
-    run:(args)=>{
-      let node = getNode(state.currentPath);
-      let f = node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`stat: cannot stat '${args[0]}': No such file or directory`};
-      return {out:`  File: ${args[0]}\n  Size: ${(f.content||'').length}\tBlocks: 8\tIO Block: 4096\t${f.type==='dir'?'directory':'regular file'}\nAccess: (${f.perms})  Uid: (1000/kali)   Gid: (1000/kali)\nModify: 2026-08-09 21:12:03.000000000 +0000`};
-    }},
-  ln:{ cat:'file', diff:'advanced', desc:'Create a link between files.', syntax:'ln -s TARGET LINK', options:[['-s','Create a symbolic link']],
-    example:'ln -s notes.txt notes_link.txt',
-    run:(args)=>({out:`'${args[args.length-1]}' -> '${args[args.length-2]}'`}) },
-  cat:{ cat:'read', diff:'beginner', desc:'Print and concatenate file contents.', syntax:'cat FILE', options:[],
-    example:'cat welcome.txt',
-    run:(args)=>{
-      let node = getNode(state.currentPath);
-      let f = node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`cat: ${args[0]}: No such file or directory`};
-      if(f.type==='dir') return {err:`cat: ${args[0]}: Is a directory`};
-      return {out: f.content||'(empty file)'};
-    }},
-  less:{ cat:'read', diff:'beginner', desc:'View file contents one screen at a time (simulated pager).', syntax:'less FILE', options:[],
-    example:'less notes.txt',
-    run:(args)=>{ let r = commands.cat.run(args); return r.err?r:{out:r.out+'\n\n(END — simulated pager, full content shown)'}; }},
-  more:{ cat:'read', diff:'beginner', desc:'View file contents page by page (simulated pager).', syntax:'more FILE', options:[],
-    example:'more notes.txt', run:(args)=>commands.less.run(args) },
-  head:{ cat:'read', diff:'beginner', desc:'Output the first part of a file.', syntax:'head [-n N] FILE', options:[['-n','Number of lines (default 5)']],
-    example:'head -n 3 todo.txt',
-    run:(args)=>{
-      let nIdx=args.indexOf('-n'); let n = nIdx>=0?parseInt(args[nIdx+1])||5:5;
-      let file = args.filter(a=>!a.startsWith('-') && a!==args[nIdx+1]).pop();
-      let node = getNode(state.currentPath); let f = node.children.find(c=>c.name===file);
-      if(!f) return {err:`head: cannot open '${file}' for reading: No such file or directory`};
-      return {out: (f.content||'').split('\n').slice(0,n).join('\n')};
-    }},
-  tail:{ cat:'read', diff:'beginner', desc:'Output the last part of a file.', syntax:'tail [-n N] FILE', options:[['-n','Number of lines (default 5)']],
-    example:'tail -n 3 todo.txt',
-    run:(args)=>{
-      let nIdx=args.indexOf('-n'); let n = nIdx>=0?parseInt(args[nIdx+1])||5:5;
-      let file = args.filter(a=>!a.startsWith('-') && a!==args[nIdx+1]).pop();
-      let node = getNode(state.currentPath); let f = node.children.find(c=>c.name===file);
-      if(!f) return {err:`tail: cannot open '${file}' for reading: No such file or directory`};
-      let lines=(f.content||'').split('\n'); return {out: lines.slice(Math.max(0,lines.length-n)).join('\n')};
-    }},
-  nl:{ cat:'read', diff:'intermediate', desc:'Number lines of a file.', syntax:'nl FILE', options:[],
-    example:'nl todo.txt',
-    run:(args)=>{
-      let node = getNode(state.currentPath); let f = node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`nl: cannot open ${args[0]}`};
-      return {out:(f.content||'').split('\n').map((l,i)=>`${(i+1).toString().padStart(6)}\t${l}`).join('\n')};
-    }},
-  wc:{ cat:'read', diff:'intermediate', desc:'Print newline, word, and byte counts for a file.', syntax:'wc FILE', options:[],
-    example:'wc notes.txt',
-    run:(args)=>{
-      let node = getNode(state.currentPath); let f = node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`wc: ${args[0]}: No such file or directory`};
-      let c=f.content||''; let lines=c.split('\n').length; let words=c.split(/\s+/).filter(Boolean).length;
-      return {out:`  ${lines}   ${words}   ${c.length} ${args[0]}`};
-    }},
-  echo:{ cat:'text', diff:'beginner', desc:'Print text to standard output.', syntax:'echo TEXT', options:[],
-    example:'echo "Hello, Kali"', run:(args)=>({out:args.join(' ').replace(/^"|"$/g,'')}) },
-  printf:{ cat:'text', diff:'intermediate', desc:'Print formatted text.', syntax:"printf 'FORMAT' ARGS", options:[],
-    example:"printf 'User: %s\\n' kali", run:(args)=>({out:args.join(' ').replace(/\\n/g,'\n')}) },
-  grep:{ cat:'text', diff:'intermediate', desc:'Search for a pattern within a file.', syntax:'grep [-i] [-n] PATTERN FILE', options:[['-i','Ignore case'],['-n','Show line numbers']],
-    example:'grep "password" notes.txt',
-    run:(args)=>{
-      let flags=args.filter(a=>a.startsWith('-')).join('');
-      let rest=args.filter(a=>!a.startsWith('-'));
-      let pattern=(rest[0]||'').replace(/^"|"$/g,''); let file=rest[1];
-      if(!pattern||!file) return {err:'Usage: grep [-i] [-n] PATTERN FILE'};
-      let node = getNode(state.currentPath); let f = node.children.find(c=>c.name===file);
-      if(!f) return {err:`grep: ${file}: No such file or directory`};
-      let lines=(f.content||'').split('\n');
-      let test = l => flags.includes('i') ? l.toLowerCase().includes(pattern.toLowerCase()) : l.includes(pattern);
-      let matches = lines.map((l,i)=>({l,i})).filter(o=>test(o.l));
-      addXP(12); awardBadge('TEXT_HUNTER');
-      if(!matches.length) return {out:''};
-      return {out: matches.map(m=> flags.includes('n') ? `${m.i+1}:${m.l}` : m.l).join('\n')};
-    }},
-  sort:{ cat:'text', diff:'intermediate', desc:'Sort lines of a file alphabetically.', syntax:'sort FILE', options:[],
-    example:'sort todo.txt',
-    run:(args)=>{ let node=getNode(state.currentPath); let f=node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`sort: cannot read: ${args[0]}: No such file or directory`};
-      return {out:(f.content||'').split('\n').sort().join('\n')}; }},
-  uniq:{ cat:'text', diff:'intermediate', desc:'Report or filter out repeated lines.', syntax:'uniq FILE', options:[],
-    example:'uniq notes.txt',
-    run:(args)=>{ let node=getNode(state.currentPath); let f=node.children.find(c=>c.name===args[0]);
-      if(!f) return {err:`uniq: ${args[0]}: No such file or directory`};
-      return {out:[...new Set((f.content||'').split('\n'))].join('\n')}; }},
-  cut:{ cat:'text', diff:'advanced', desc:'Extract sections (fields) from each line of a file.', syntax:"cut -d DELIM -f N FILE", options:[['-d','Field delimiter'],['-f','Field number']],
-    example:"cut -d: -f1 creds.txt",
-    run:(args)=>{
-      let dIdx=args.indexOf('-d'); let fIdx=args.indexOf('-f');
-      let delim = dIdx>=0?args[dIdx+1]:':'; let field = fIdx>=0?parseInt(args[fIdx+1]):1;
-      let file = args[args.length-1];
-      let node=getNode(state.currentPath); let f=node.children.find(c=>c.name===file);
-      if(!f) return {err:`cut: ${file}: No such file or directory`};
-      return {out:(f.content||'').split('\n').map(l=>l.split(delim)[field-1]||'').join('\n')};
-    }},
-  tr:{ cat:'text', diff:'advanced', desc:'Translate or delete characters.', syntax:"tr 'SET1' 'SET2' <<< TEXT", options:[],
-    example:"echo hello | tr a-z A-Z (simulated: pass text directly)",
-    run:(args)=>{ let text=args.slice(2).join(' '); return {out:(text||args.join(' ')).toUpperCase()}; }},
-  sed:{ cat:'text', diff:'advanced', desc:'Stream editor for filtering / transforming text.', syntax:"sed 's/OLD/NEW/' FILE", options:[],
-    example:"sed 's/password/REDACTED/' creds.txt",
-    run:(args)=>{
-      let expr = args[0]||''; let file=args[1];
-      let m = expr.match(/^s\/(.+)\/(.*)\/g?$/);
-      let node=getNode(state.currentPath); let f=node.children.find(c=>c.name===file);
-      if(!f) return {err:`sed: can't read ${file}: No such file or directory`};
-      if(!m) return {err:"sed: -e expression #1: unterminated `s' command"};
-      return {out:(f.content||'').split(m[1]).join(m[2])};
-    }},
-  awk:{ cat:'text', diff:'advanced', desc:'Pattern scanning and text-processing language.', syntax:"awk '{print $N}' FILE", options:[],
-    example:"awk -F: '{print $1}' creds.txt",
-    run:(args)=>{
-      let fIdx=args.indexOf('-F'); let delim = fIdx>=0?args[fIdx+1]:' ';
-      let prog = args.find(a=>a.startsWith("'")||a.includes('print'))||'';
-      let file = args[args.length-1];
-      let colMatch = prog.match(/\$(\d)/); let col = colMatch?parseInt(colMatch[1]):1;
-      let node=getNode(state.currentPath); let f=node.children.find(c=>c.name===file);
-      if(!f) return {err:`awk: can't open file ${file}`};
-      return {out:(f.content||'').split('\n').map(l=>l.split(delim)[col-1]||'').join('\n')};
-    }},
-  whoami:{ cat:'sys', diff:'beginner', desc:'Print the current effective username.', syntax:'whoami', options:[], example:'whoami', run:()=>({out:'kali'})},
-  id:{ cat:'sys', diff:'beginner', desc:'Print user and group identity.', syntax:'id', options:[], example:'id', run:()=>({out:'uid=1000(kali) gid=1000(kali) groups=1000(kali),27(sudo)'})},
-  hostname:{ cat:'sys', diff:'beginner', desc:'Show the system hostname.', syntax:'hostname', options:[], example:'hostname', run:()=>({out:'linux'})},
-  uname:{ cat:'sys', diff:'beginner', desc:'Print system information.', syntax:'uname [-a]', options:[['-a','Print all information']],
-    example:'uname -a', run:(args)=>({out: args.includes('-a') ? 'Linux linux 6.6.15-amd64 #1 SMP x86_64 GNU/Linux' : 'Linux'})},
-  date:{ cat:'sys', diff:'beginner', desc:'Print or simulate the current date and time.', syntax:'date', options:[], example:'date', run:()=>({out:new Date().toString()})},
-  uptime:{ cat:'sys', diff:'beginner', desc:'Show how long the system has been running.', syntax:'uptime', options:[], example:'uptime',
-    run:()=>({out:` ${new Date().toLocaleTimeString()} up 2:14,  1 user,  load average: 0.08, 0.05, 0.01`})},
-  free:{ cat:'sys', diff:'intermediate', desc:'Display memory usage.', syntax:'free -h', options:[['-h','Human-readable sizes']],
-    example:'free -h', run:()=>({out:'              total        used        free      shared\nMem:          7.6Gi       2.1Gi       4.3Gi       210Mi\nSwap:         2.0Gi          0B       2.0Gi'})},
-  df:{ cat:'sys', diff:'intermediate', desc:'Report filesystem disk space usage.', syntax:'df -h', options:[['-h','Human-readable sizes']],
-    example:'df -h', run:()=>({out:'Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        40G   12G   26G  32% /\ntmpfs           3.8G     0  3.8G   0% /dev/shm'})},
-  du:{ cat:'sys', diff:'intermediate', desc:'Estimate file space usage.', syntax:'du -h [PATH]', options:[['-h','Human-readable sizes']],
-    example:'du -h ~', run:()=>({out:'4.0K\t./scripts\n8.0K\t./Documents\n4.0K\t./Downloads\n24K\t.'})},
-  env:{ cat:'sys', diff:'intermediate', desc:'Display environment variables.', syntax:'env', options:[], example:'env',
-    run:()=>({out:'SHELL=/bin/bash\nUSER=kali\nHOME=/home/kali\nPATH=/usr/local/sbin:/usr/local/bin:/usr/bin\nLANG=en_US.UTF-8'})},
-  printenv:{ cat:'sys', diff:'intermediate', desc:'Print environment variable values.', syntax:'printenv [VAR]', options:[], example:'printenv HOME',
-    run:(args)=>{ let vars={SHELL:'/bin/bash',USER:'kali',HOME:'/home/kali',LANG:'en_US.UTF-8'}; return {out: args[0]? (vars[args[0]]||'') : Object.entries(vars).map(([k,v])=>`${k}=${v}`).join('\n')}; }},
-  ps:{ cat:'proc', diff:'intermediate', desc:'Report a snapshot of current processes.', syntax:'ps aux', options:[['aux','Show all processes for all users']],
-    example:'ps aux',
-    run:()=>({out:'USER   PID  %CPU %MEM COMMAND\nkali     1   0.0  0.1 /sbin/init\nkali   204   0.2  0.4 bash\nkali   511   0.0  0.2 sshd\nkali   822   1.4  1.8 burpsuite\nkali  1190   0.1  0.3 ps aux'})},
-  top:{ cat:'proc', diff:'intermediate', desc:'Display real-time process activity (simulated snapshot).', syntax:'top', options:[],
-    example:'top',
-    run:()=>({out:'top - up 2:14,  1 user,  load average: 0.08, 0.05, 0.01\nTasks: 118 total,   1 running\n%Cpu(s):  3.1 us,  1.2 sy\nMiB Mem :  7822 total,  4380 free\n\n  PID USER   %CPU %MEM COMMAND\n  822 kali    1.4  1.8 burpsuite\n  204 kali    0.2  0.4 bash\n(simulated snapshot — press q to exit on a real system)'})},
-  jobs:{ cat:'proc', diff:'beginner', desc:'List active background jobs.', syntax:'jobs', options:[], example:'jobs', run:()=>({out:'No active jobs'})},
-  kill:{ cat:'proc', diff:'advanced', desc:'Terminate a process by PID.', syntax:'kill PID', options:[],
-    example:'kill 822', run:(args)=>({out: args[0] ? `Sent SIGTERM to process ${args[0]} (simulated)` : 'kill: usage: kill pid'})},
-  killall:{ cat:'proc', diff:'advanced', desc:'Terminate processes by name.', syntax:'killall NAME', options:[],
-    example:'killall burpsuite', run:(args)=>({out: args[0] ? `Sent SIGTERM to all processes named '${args[0]}' (simulated)` : 'Usage: killall NAME'})},
-  ip:{ cat:'net', diff:'intermediate', desc:'Show or manipulate network interfaces (simulated).', syntax:'ip a', options:[['a','Show all addresses']],
-    example:'ip a',
-    run:()=>({out:'1: lo: <LOOPBACK,UP> mtu 65536\n    inet 127.0.0.1/8 scope host lo\n2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500\n    inet 10.10.14.22/24 scope global eth0'})},
-  ping:{ cat:'net', diff:'beginner', desc:'Send ICMP echo requests to test connectivity (simulated — no real packets sent).', syntax:'ping HOST', options:[],
-    example:'ping 10.10.14.1',
-    run:(args)=>{ let host=args[0]||'10.10.14.1';
-      return {out:`PING ${host} 56(84) bytes of data.\n64 bytes from ${host}: icmp_seq=1 ttl=64 time=0.031 ms\n64 bytes from ${host}: icmp_seq=2 ttl=64 time=0.028 ms\n64 bytes from ${host}: icmp_seq=3 ttl=64 time=0.035 ms\n\n--- ${host} ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss\n(simulated — no real network traffic sent)`}; }},
-  ss:{ cat:'net', diff:'advanced', desc:'Investigate sockets (simulated).', syntax:'ss -tulwn', options:[],
-    example:'ss -tulwn',
-    run:()=>({out:'Netid  State   Local Address:Port   Peer Address:Port\ntcp    LISTEN  127.0.0.1:631        0.0.0.0:*\ntcp    LISTEN  0.0.0.0:22           0.0.0.0:*'})},
-  netstat:{ cat:'net', diff:'advanced', desc:'Print network connections (simulated).', syntax:'netstat -tulpn', options:[],
-    example:'netstat -tulpn',
-    run:()=>({out:'Proto  Local Address     Foreign Address    State\ntcp    0.0.0.0:22        0.0.0.0:*          LISTEN\ntcp    0.0.0.0:80         0.0.0.0:*         LISTEN'})},
-  curl:{ cat:'net', diff:'intermediate', desc:'Transfer data from a URL (simulated — no real request is made).', syntax:'curl URL', options:[],
-    example:'curl http://10.10.14.1/api',
-    run:(args)=>({out:`(simulated) GET ${args[0]||'URL'}\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{"status":"ok","note":"no real network request was made"}`})},
-  wget:{ cat:'net', diff:'intermediate', desc:'Download files from the web (simulated — no real request is made).', syntax:'wget URL', options:[],
-    example:'wget http://10.10.14.1/tools.zip',
-    run:(args)=>({out:`(simulated) Resolving host...\nConnecting... connected.\nHTTP request sent, awaiting response... 200 OK\nSaving to: 'download.file' (no real download performed)`})},
-  chmod:{ cat:'perm', diff:'advanced', desc:'Change file permission bits.', syntax:'chmod MODE FILE', options:[],
-    example:'chmod 755 recon.sh',
-    run:(args)=>{
-      let mode=args[0], file=args[1]; if(!mode||!file) return {err:'Usage: chmod MODE FILE'};
-      let node=getNode(state.currentPath); let f=node.children.find(c=>c.name===file);
-      if(!f) return {err:`chmod: cannot access '${file}': No such file or directory`};
-      let map={0:'---',1:'--x',2:'-w-',3:'-wx',4:'r--',5:'r-x',6:'rw-',7:'rwx'};
-      if(/^\d{3}$/.test(mode)){
-        let perms=(f.type==='dir'?'d':'-')+mode.split('').map(d=>map[d]).join('');
-        f.perms=perms; addXP(10); awardBadge('PERMISSION_MASTER');
-        return {out:`Permissions changed:\n${perms} ${file}`};
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'cp') {
+    if (args.length < 2) {
+      output = 'cp: missing source or destination';
+    } else {
+      output = `Copied '${args[0]}' to '${args[1]}'`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'mv') {
+    if (args.length < 2) {
+      output = 'mv: missing source or destination';
+    } else {
+      output = `Moved '${args[0]}' to '${args[1]}'`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'rm') {
+    if (args.length === 0) {
+      output = 'rm: missing operand';
+    } else {
+      const target = args[args.length - 1];
+      if (target === 'test2.txt') {
+        output = `Removed '${target}'`;
+      } else if (target === '-rf' || target === '-r' || target === '-f') {
+        output = `rm: missing operand after '${target}'`;
+      } else {
+        output = `Removed '${target}'`;
       }
-      return {err:'chmod: invalid mode'};
-    }},
-  chown:{ cat:'perm', diff:'advanced', desc:'Change file owner and group.', syntax:'chown OWNER:GROUP FILE', options:[],
-    example:'chown kali:kali notes.txt',
-    run:(args)=>({out: args[1] ? `Ownership of '${args[1]}' changed to ${args[0]} (simulated)` : 'Usage: chown OWNER:GROUP FILE'})},
-  umask:{ cat:'perm', diff:'advanced', desc:'Show or set the default permission mask.', syntax:'umask', options:[], example:'umask', run:()=>({out:'0022'})},
-  tar:{ cat:'arch', diff:'intermediate', desc:'Archive files (simulated).', syntax:'tar -czf NAME.tar.gz FILE / tar -xzf NAME.tar.gz', options:[['-czf','Create gzip archive'],['-xzf','Extract gzip archive']],
-    example:'tar -czf backup.tar.gz notes.txt',
-    run:(args)=>{
-      if(args.includes('-czf')){
-        let idx=args.indexOf('-czf'); let name=args[idx+1];
-        let node=getNode(state.currentPath);
-        node.children.push({name, type:'file', perms:'-rw-r--r--', content:'[gzip archive]'});
-        return {out:`${name} created (simulated)`};
-      }
-      if(args.includes('-xzf')) return {out:'Archive extracted (simulated — files unpacked into current directory)'};
-      return {out:'tar: usage requires -czf or -xzf (simulated)'};
-    }},
-  gzip:{ cat:'arch', diff:'intermediate', desc:'Compress a file (simulated).', syntax:'gzip FILE', options:[],
-    example:'gzip notes.txt', run:(args)=>({out: args[0]?`${args[0]}.gz created (simulated)`:'Usage: gzip FILE'})},
-  gunzip:{ cat:'arch', diff:'intermediate', desc:'Decompress a .gz file (simulated).', syntax:'gunzip FILE.gz', options:[],
-    example:'gunzip notes.txt.gz', run:(args)=>({out: args[0]?`${args[0].replace('.gz','')} restored (simulated)`:'Usage: gunzip FILE.gz'})},
-  zip:{ cat:'arch', diff:'intermediate', desc:'Package files into a zip archive (simulated).', syntax:'zip OUT.zip FILE', options:[],
-    example:'zip backup.zip notes.txt',
-    run:(args)=>{ let name=args[0]; if(!name) return {err:'Usage: zip OUT.zip FILE'};
-      let node=getNode(state.currentPath); node.children.push({name, type:'file', perms:'-rw-r--r--', content:'[zip archive]'});
-      return {out:`  adding: ${args[1]||'file'} (simulated)`}; }},
-  unzip:{ cat:'arch', diff:'intermediate', desc:'Extract a zip archive (simulated).', syntax:'unzip FILE.zip', options:[],
-    example:'unzip tools.zip', run:()=>({out:'Archive extracted (simulated — files unpacked into current directory)'})},
-  apt:{ cat:'pkg', diff:'intermediate', desc:'Debian package manager (simulated — no real packages installed).', syntax:'apt update | search TERM | install PKG', options:[],
-    example:'apt update',
-    run:(args)=>{
-      if(args[0]==='update') return {out:'Hit:1 http://kali.download/kali kali-rolling InRelease\nReading package lists... Done\n(simulated — no real repositories contacted)'};
-      if(args[0]==='search') return {out:`Searching...\n${args[1]||'pkg'} - simulated cybersecurity utility\n${args[1]||'pkg'}-doc - documentation (simulated)`};
-      if(args[0]==='install') return {out:`Reading package lists... Done\nThe following packages will be installed: ${args[1]||'package'}\n(simulated — no real installation performed)`};
-      return {err:'Usage: apt update | apt search TERM | apt install PKG'};
-    }},
-  clear:{ cat:'shell', diff:'beginner', desc:'Clear the terminal screen.', syntax:'clear', options:[], example:'clear', run:()=>({clear:true})},
-  history:{ cat:'shell', diff:'beginner', desc:'Show command history for this session.', syntax:'history', options:[], example:'history',
-    run:()=>({out: state.history.map((c,i)=>`${(i+1).toString().padStart(4,'0')}  ${c}`).join('\n') || '(no history yet)'})},
-  alias:{ cat:'shell', diff:'intermediate', desc:'Create a shortcut name for a command.', syntax:'alias NAME=COMMAND', options:[],
-    example:"alias ll='ls -la'", run:(args)=>({out: args.length? `alias set (simulated): ${args.join(' ')}` : 'No aliases set'})},
-  which:{ cat:'shell', diff:'intermediate', desc:'Locate a command binary.', syntax:'which COMMAND', options:[],
-    example:'which grep', run:(args)=>({out: args[0]&&commands[args[0]] ? `/usr/bin/${args[0]}` : `${args[0]}: not found`})},
-  type:{ cat:'shell', diff:'intermediate', desc:'Describe how a command name would be interpreted.', syntax:'type COMMAND', options:[],
-    example:'type ls', run:(args)=>({out: args[0]&&commands[args[0]] ? `${args[0]} is a shell builtin (simulated)` : `bash: type: ${args[0]}: not found`})},
-  help:{ cat:'shell', diff:'beginner', desc:'Show the full command reference.', syntax:'help', options:[], example:'help',
-    run:()=>({out: buildHelpText()})},
-  man:{ cat:'shell', diff:'beginner', desc:'Display the manual page for a command.', syntax:'man COMMAND', options:[],
-    example:'man grep', run:(args)=>{
-      let c=commands[args[0]];
-      if(!c) return {err:`No manual entry for ${args[0]||''}`};
-      addXP(4);
-      return {out: buildManText(args[0], c)};
-    }},
-  exit:{ cat:'shell', diff:'beginner', desc:'Close the terminal session (simulated — resets the prompt).', syntax:'exit', options:[], example:'exit',
-    run:()=>({out:'logout\n(simulated — session remains active in this training environment)'})}
-};
-
-function buildHelpText(){
-  let byCat={};
-  Object.entries(commands).forEach(([name,c])=>{ (byCat[c.cat]=byCat[c.cat]||[]).push(name); });
-  let out = '╔══════════════════════════════════════════════╗\n║              LINUX CMD                        ║\n╚══════════════════════════════════════════════╝\n\n';
-  Object.entries(CAT_LABELS).forEach(([key,label])=>{
-    if(!byCat[key]) return;
-    out += label.toUpperCase()+'\n';
-    byCat[key].forEach(name=>{ out += `${name.padEnd(11)}${commands[name].desc}\n`; });
-    out += '\n';
-  });
-  out += "Type 'man <command>' for detailed information.";
-  return out;
-}
-function buildManText(name,c){
-  let opts = c.options.length ? '\nOPTIONS\n'+c.options.map(o=>`  ${o[0].padEnd(6)}${o[1]}`).join('\n') : '';
-  return `${name.toUpperCase()}(1)\n\nNAME\n  ${name} - ${c.desc}\n\nSYNOPSIS\n  ${c.syntax}\n\nEXAMPLE\n  ${c.example}${opts}`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'find') {
+    const path = args[0] || '.';
+    if (args.includes('-name') && args[args.indexOf('-name') + 1]) {
+      const pattern = args[args.indexOf('-name') + 1];
+      output = `Searching ${path} for ${pattern}...\n./file1.txt\n./folder/doc.pdf\n./${pattern.replace(/["']/g, '')}`;
+    } else {
+      output = `Searching ${path}...\n./file1.txt\n./folder/doc.pdf\n./test.txt\n./Desktop\n./Documents`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'chmod') {
+    if (args.length < 2) {
+      output = 'chmod: missing mode or file';
+    } else {
+      output = `Permissions changed for '${args[1]}' to ${args[0]}`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'ps') {
+    output = '  PID  TTY     TIME     CMD\n 1234  pts/0   00:00:01 bash\n 5678  pts/0   00:00:05 node\n 9012  pts/0   00:00:00 ps';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'kill') {
+    if (args.length === 0) {
+      output = 'kill: missing PID';
+    } else {
+      output = `Process ${args[0]} terminated.`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'date') {
+    output = new Date().toString();
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'whoami') {
+    output = 'kali';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'uname') {
+    if (args.includes('-a')) {
+      output = 'Linux kali 5.15.0-3-amd64 #1 SMP Debian 5.15.0-3 x86_64 GNU/Linux';
+    } else if (args.includes('-r')) {
+      output = '5.15.0-3-amd64';
+    } else if (args.includes('-s')) {
+      output = 'Linux';
+    } else {
+      output = 'Linux';
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'history') {
+    const hist = state.history.slice(-10).map((h, i) => `  ${i+1}  ${h.cmd}`).join('\n');
+    output = hist || 'No command history.';
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === '') {
+    appendOutput('$ ', 'line-in');
+  }
+  else {
+    output = `command not found: ${base} (try 'help')`;
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output, 'line-err');
+  }
+  
+  // Add to history
+  state.history.push({ cmd: trimmed, output: output || '✓' });
+  renderHistory();
+  updatePills();
+  renderDashboard();
+  
+  // Auto-unlock badges
+  if (state.commandCount === 1 && !state.badges.includes('First Command')) {
+    state.badges.push('First Command');
+    notify('🏆 Unlocked: First Command');
+    renderBadges();
+  }
+  if (state.commandCount >= 3 && !state.badges.includes('File Explorer')) {
+    state.badges.push('File Explorer');
+    notify('🏆 Unlocked: File Explorer');
+    renderBadges();
+  }
+  if (state.commandCount >= 5 && !state.badges.includes('Directory Master')) {
+    state.badges.push('Directory Master');
+    notify('🏆 Unlocked: Directory Master');
+    renderBadges();
+  }
+  if (state.commandCount >= 8 && !state.badges.includes('Echo Expert')) {
+    state.badges.push('Echo Expert');
+    notify('🏆 Unlocked: Echo Expert');
+    renderBadges();
+  }
+  if (state.history.some(h => h.cmd.includes('grep')) && !state.badges.includes('Grep Guru')) {
+    state.badges.push('Grep Guru');
+    notify('🏆 Unlocked: Grep Guru');
+    renderBadges();
+  }
+  if (state.history.some(h => h.cmd.includes('kill')) && !state.badges.includes('Process Killer')) {
+    state.badges.push('Process Killer');
+    notify('🏆 Unlocked: Process Killer');
+    renderBadges();
+  }
+  if (state.history.some(h => h.cmd.includes('head') || h.cmd.includes('tail') || h.cmd.includes('wc')) && !state.badges.includes('Text Master')) {
+    state.badges.push('Text Master');
+    notify('🏆 Unlocked: Text Master');
+    renderBadges();
+  }
 }
 
-/* ================================================================
-   4. TERMINAL ENGINE
-================================================================ */
-function tokenize(input){
-  let out=[]; let re=/"([^"]*)"|(\S+)/g; let m;
-  while((m=re.exec(input))!==null) out.push(m[1]!==undefined?m[1]:m[2]);
-  return out;
-}
-function appendLine(text, cls){
-  let out=document.getElementById('term-output');
-  let div=document.createElement('div');
-  div.className=cls;
-  div.textContent=text;
-  out.appendChild(div);
-  out.scrollTop=out.scrollHeight;
-}
-function updatePrompt(){
-  document.getElementById('prompt-path').textContent = shortDir(state.currentPath);
-  document.getElementById('term-title-path').textContent = `kali@linux: ${pathToStr(state.currentPath)}`;
-}
-
-// ─── inline help panel ───
-function showHelp(cmdName){
-  const panel = document.getElementById('help-panel');
-  const c = commands[cmdName];
-  if(!c){ panel.classList.remove('visible'); return; }
-  document.getElementById('help-title').textContent = cmdName;
-  document.getElementById('help-diff').textContent = c.diff;
-  document.getElementById('help-diff').className = 'h-diff ' + c.diff;
+function showHelp(cmd) {
+  const c = COMMANDS[cmd];
+  if (!c) {
+    helpPanel.classList.remove('visible');
+    return;
+  }
+  document.getElementById('help-title').innerHTML = `${cmd} <span class="h-diff ${c.diff}">${c.diff}</span>`;
   document.getElementById('help-desc').textContent = c.desc;
-  document.getElementById('help-syntax').textContent = '▶ ' + c.syntax;
-  let optHtml = c.options.length ? c.options.map(o => `<div class="h-opt"><span class="flag">${o[0]}</span><span>${o[1]}</span></div>`).join('') : '';
-  document.getElementById('help-options').innerHTML = optHtml ? '<div style="color:var(--blue);font-size:9px;letter-spacing:1px;text-transform:uppercase;margin:4px 0 2px;">Options</div>'+optHtml : '';
-  document.getElementById('help-example').textContent = '$ ' + c.example;
-  panel.classList.add('visible');
+  document.getElementById('help-syntax').textContent = `syntax: ${c.syntax}`;
+  document.getElementById('help-example').textContent = `example: ${c.example}`;
+  helpPanel.classList.add('visible');
 }
-document.getElementById('help-close').onclick = ()=>{
-  document.getElementById('help-panel').classList.remove('visible');
-};
 
-// ─── professional command library ───
-function buildLibrary(){
-  const body = document.getElementById('lib-body');
-  const countEl = document.getElementById('lib-count');
-  body.innerHTML = '';
-  let total = 0;
-  let cats = {};
-  Object.entries(commands).forEach(([name,c])=>{
-    if(!cats[c.cat]) cats[c.cat]=[];
-    cats[c.cat].push({name, diff:c.diff, desc:c.desc});
-    total++;
-  });
-  countEl.textContent = total + ' commands';
-  Object.entries(CAT_LABELS).forEach(([key,label])=>{
-    if(!cats[key]) return;
-    let div = document.createElement('div');
-    div.className = 'lib-cat';
-    div.textContent = label;
-    body.appendChild(div);
-    cats[key].forEach(cmd=>{
-      let item = document.createElement('div');
-      item.className = 'lib-item';
-      let diffClass = cmd.diff==='beginner'?'beg':cmd.diff==='intermediate'?'int':'adv';
-      item.innerHTML = `<span class="lib-name">${cmd.name}</span><span class="lib-diff ${diffClass}">${cmd.diff.slice(0,3)}</span>`;
-      item.onclick = ()=>{
-        document.getElementById('term-input').value = cmd.name;
-        document.getElementById('term-input').focus();
-        document.getElementById('cmd-library').classList.remove('visible');
-        showHelp(cmd.name);
-      };
-      body.appendChild(item);
+// ─────────────────── COMMAND LIBRARY ───────────────────
+function renderLibrary(filter = '') {
+  const entries = Object.entries(COMMANDS).sort((a,b) => a[0].localeCompare(b[0]));
+  const filtered = entries.filter(([name]) => name.includes(filter.toLowerCase()));
+  if (!filtered.length) {
+    libBody.innerHTML = '<div class="lib-empty">no commands match</div>';
+    libCount.textContent = '0 commands';
+    return;
+  }
+  const html = filtered.map(([name, data]) => `
+    <div class="lib-item" data-cmd="${name}">
+      <span class="lib-name">${name}</span>
+      <span class="lib-diff ${data.diff === 'beginner' ? 'beg' : data.diff === 'intermediate' ? 'int' : 'adv'}">${data.diff}</span>
+    </div>
+  `).join('');
+  libBody.innerHTML = html;
+  libCount.textContent = `${filtered.length} commands`;
+  
+  // Click to insert command
+  libBody.querySelectorAll('.lib-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const cmd = el.dataset.cmd;
+      termInput.value = cmd;
+      termInput.focus();
+      libLibrary.classList.remove('visible');
+      libToggle.querySelector('#lib-toggle-label').textContent = 'Commands';
+      notify(`Inserted: ${cmd}`);
     });
   });
-  // search filter
-  const search = document.getElementById('lib-search');
-  search.addEventListener('input', (e)=>{
-    const q = e.target.value.toLowerCase().trim();
-    let visible = 0;
-    document.querySelectorAll('#lib-body .lib-item').forEach(item=>{
-      const name = item.querySelector('.lib-name').textContent.toLowerCase();
-      const show = name.includes(q);
-      item.style.display = show ? 'flex' : 'none';
-      if(show) visible++;
-    });
-    document.querySelectorAll('#lib-body .lib-cat').forEach(cat=>{
-      let hasVisible = false;
-      let next = cat.nextElementSibling;
-      while(next && next.classList.contains('lib-item')){
-        if(next.style.display !== 'none') hasVisible = true;
-        next = next.nextElementSibling;
+}
+
+// ─────────────────── CHALLENGES ───────────────────
+function renderChallenges(filter = 'all') {
+  let filtered = CHALLENGES;
+  if (filter !== 'all') filtered = CHALLENGES.filter(c => c.diff === filter);
+  challengesGrid.innerHTML = filtered.map(ch => {
+    const done = state.completedChallenges.has(ch.id);
+    return `
+      <div class="ch-card ${done ? 'done' : ''}" data-id="${ch.id}">
+        ${done ? '<div class="ch-done-mark">✓ done</div>' : ''}
+        <div class="ch-id">${ch.id} · ${ch.diff}</div>
+        <div class="ch-title">${ch.title}</div>
+        <div class="ch-obj">${ch.obj}</div>
+        <div class="ch-foot">
+          <span class="ch-xp">+${ch.xp} XP</span>
+          <span style="font-size:11px;color:var(--muted);">${done ? '✔ completed' : 'click to start'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  challengesGrid.querySelectorAll('.ch-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.id;
+      if (state.completedChallenges.has(id)) {
+        notify('Already completed!');
+        return;
       }
-      cat.style.display = hasVisible ? 'block' : 'none';
+      state.completedChallenges.add(id);
+      const challenge = CHALLENGES.find(c => c.id === id);
+      state.xp += challenge.xp;
+      updatePills();
+      renderChallenges(document.querySelector('.diff-filter .active')?.dataset?.diff || 'all');
+      renderDashboard();
+      renderBadges();
+      notify(`✅ Challenge complete! +${challenge.xp} XP`);
+      
+      // Check if all challenges completed
+      if (state.completedChallenges.size === CHALLENGES.length) {
+        notify('🎉 All challenges completed! You are a Linux Master!');
+      }
     });
-    // update count
-    const totalItems = document.querySelectorAll('#lib-body .lib-item').length;
-    document.getElementById('lib-count').textContent = (q ? visible + ' / ' : '') + totalItems + ' commands';
   });
 }
-document.getElementById('lib-toggle').onclick = ()=>{
-  const lib = document.getElementById('cmd-library');
-  const label = document.getElementById('lib-toggle-label');
-  lib.classList.toggle('visible');
-  label.textContent = lib.classList.contains('visible') ? 'Close' : 'Library';
-  if(lib.classList.contains('visible')) {
-    document.getElementById('lib-search').focus();
-    // re-run filter to update count
-    document.getElementById('lib-search').dispatchEvent(new Event('input'));
-  }
-};
-document.getElementById('lib-close').onclick = ()=>{
-  document.getElementById('cmd-library').classList.remove('visible');
-  document.getElementById('lib-toggle-label').textContent = 'Library';
-};
 
-function execCommand(raw){
-  if(!raw.trim()) return;
-  state.history.push(raw); state.historyPos=state.history.length;
-  state.commandsExec++;
-  addXP(2);
-  appendLine(`┌──(kali㉿linux)-[${shortDir(state.currentPath)}]`, 'ascii-prompt');
-  appendLine(`└─$ ${raw}`, 'line-in');
-
-  let tokens = tokenize(raw.trim());
-  let cmdName = tokens[0].toLowerCase();
-  let args = tokens.slice(1);
-
-  if(cmdName==='clear'){ document.getElementById('term-output').innerHTML=''; return; }
-
-  let c = commands[cmdName];
-  if(!c){
-    appendLine(`bash: ${cmdName}: command not found`, 'line-err');
-    document.getElementById('help-panel').classList.remove('visible');
-  } else {
-    state.learnedCommands.add(cmdName);
-    state.cmdFreq[cmdName]=(state.cmdFreq[cmdName]||0)+1;
-    let result;
-    try{ result = c.run(args); } catch(e){ result = {err:`${cmdName}: error executing command (simulated)`}; }
-    if(result.out!==undefined && result.out!=='') appendLine(result.out,'line-out');
-    if(result.err) appendLine(result.err,'line-err');
-    showHelp(cmdName);
-    checkChallenge(raw);
-    checkMissions(cmdName, args);
-    if(state.commandsExec>=1) awardBadge('FIRST_COMMAND');
-    if(['ls','cd','pwd','tree','find','mkdir','touch','cp','mv','rm'].includes(cmdName)) awardBadge('FILE_EXPLORER');
-    if(['ps','top','kill','killall','jobs'].includes(cmdName)) awardBadge('PROCESS_ANALYST');
-    if(['ip','ping','ss','netstat','curl','wget'].includes(cmdName)) awardBadge('NETWORK_SCOUT');
-    if(state.learnedCommands.size>=10) awardBadge('LINUX_BEGINNER');
-    if(state.learnedCommands.size>=30) awardBadge('COMMAND_MASTER');
-  }
-  refreshDynamicUI();
+// ─────────────────── MISSIONS / PRACTICE ───────────────────
+function renderPractice() {
+  practiceContainer.innerHTML = MISSIONS.map(mission => {
+    const done = state.completedMissions.has(mission.id);
+    const tasksDone = mission.tasks.filter((_, i) => state.completedMissions.has(`${mission.id}-${i}`));
+    const progress = Math.round((tasksDone.length / mission.tasks.length) * 100);
+    return `
+      <div class="mission-card">
+        <div class="mission-title">${mission.title} ${done ? '✅' : ''}</div>
+        <div class="mission-goal">${mission.desc}</div>
+        ${mission.tasks.map((task, i) => {
+          const taskDone = state.completedMissions.has(`${mission.id}-${i}`);
+          return `
+            <div class="task-row ${taskDone ? 'done' : ''}" data-mission="${mission.id}" data-task="${i}">
+              <span class="task-check">${taskDone ? '✓' : ''}</span>
+              <span class="tlabel">${task}</span>
+            </div>
+          `;
+        }).join('')}
+        <div class="progress-track"><div class="progress-fill" style="width:${progress}%;"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px;">${progress}% complete</div>
+      </div>
+    `;
+  }).join('');
+  
+  practiceContainer.querySelectorAll('.task-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const missionId = row.dataset.mission;
+      const taskIdx = row.dataset.task;
+      const key = `${missionId}-${taskIdx}`;
+      if (state.completedMissions.has(key)) {
+        notify('Task already done!');
+        return;
+      }
+      state.completedMissions.add(key);
+      // Check if all tasks done for this mission
+      const mission = MISSIONS.find(m => m.id === missionId);
+      const allDone = mission.tasks.every((_, i) => state.completedMissions.has(`${missionId}-${i}`));
+      if (allDone && !state.completedMissions.has(missionId)) {
+        state.completedMissions.add(missionId);
+        state.xp += 30;
+        notify(`🎉 Mission complete! +30 XP`);
+        if (!state.badges.includes('Mission Master')) {
+          state.badges.push('Mission Master');
+          renderBadges();
+        }
+      } else {
+        notify('✅ Task complete!');
+      }
+      updatePills();
+      renderPractice();
+      renderDashboard();
+    });
+  });
 }
 
-function refreshDynamicUI(){
-  updateHistoryPanel();
-  updateDashboard();
-}
+// ─────────────────── NAVIGATION ───────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`sec-${tab.dataset.section}`).classList.add('active');
+    if (tab.dataset.section === 'dashboard') {
+      renderDashboard();
+      renderBadges();
+    }
+    if (tab.dataset.section === 'history') renderHistory();
+    if (tab.dataset.section === 'challenges') renderChallenges();
+    if (tab.dataset.section === 'practice') renderPractice();
+  });
+});
 
-const inputEl = document.getElementById('term-input');
-inputEl.addEventListener('keydown', (e)=>{
-  if(e.key==='Enter'){ let v=inputEl.value; inputEl.value=''; execCommand(v); }
-  else if(e.key==='ArrowUp'){ if(state.historyPos>0){ state.historyPos--; inputEl.value=state.history[state.historyPos]||''; } e.preventDefault(); }
-  else if(e.key==='ArrowDown'){ if(state.historyPos<state.history.length-1){ state.historyPos++; inputEl.value=state.history[state.historyPos]; } else { state.historyPos=state.history.length; inputEl.value=''; } e.preventDefault(); }
-  else if(e.key==='Tab'){
+// ─────────────────── DIFF FILTER ───────────────────
+document.querySelectorAll('.diff-filter button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-filter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderChallenges(btn.dataset.diff);
+  });
+});
+
+// ─────────────────── TERMINAL INPUT ───────────────────
+termInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const cmd = termInput.value;
+    termInput.value = '';
+    runCommand(cmd);
+    // Hide help panel on command
+    helpPanel.classList.remove('visible');
+  } else if (e.key === 'ArrowUp') {
+    // Command history up
     e.preventDefault();
-    let val=inputEl.value;
-    if(val){ let matches=Object.keys(commands).filter(c=>c.startsWith(val));
-      if(matches.length===1) inputEl.value=matches[0];
-      else if(matches.length>1) appendLine(matches.join('   '),'line-sys');
+    if (state.commandHistory.length > 0) {
+      if (state.historyIndex > 0) {
+        state.historyIndex--;
+      }
+      termInput.value = state.commandHistory[state.historyIndex] || '';
+    }
+  } else if (e.key === 'ArrowDown') {
+    // Command history down
+    e.preventDefault();
+    if (state.commandHistory.length > 0) {
+      if (state.historyIndex < state.commandHistory.length - 1) {
+        state.historyIndex++;
+        termInput.value = state.commandHistory[state.historyIndex] || '';
+      } else {
+        state.historyIndex = state.commandHistory.length - 1;
+        termInput.value = '';
+      }
     }
   }
 });
 
-/* ================================================================
-   5. CHALLENGES
-================================================================ */
-const challenges = [
-  {id:'CH-01', title:'FIRST STEPS', diff:'beginner', obj:'Print your current working directory.', hint:"Use 'pwd'.", xp:30, check:(raw)=>raw.trim()==='pwd'},
-  {id:'CH-02', title:'LIST FILES', diff:'beginner', obj:'List the contents of the current directory, including hidden files.', hint:"Use 'ls -a'.", xp:35, check:(raw)=>raw.trim()==='ls -a'},
-  {id:'CH-03', title:'LONG LISTING', diff:'beginner', obj:'View a detailed, long-format directory listing.', hint:"Use 'ls -l'.", xp:35, check:(raw)=>raw.trim()==='ls -l'},
-  {id:'CH-04', title:'MAKE A DIRECTORY', diff:'beginner', obj:"Create a directory named 'myfolder'.", hint:"Use 'mkdir myfolder'.", xp:40, check:(raw)=>/mkdir\s+myfolder/.test(raw)},
-  {id:'CH-05', title:'CREATE A FILE', diff:'beginner', obj:"Create an empty file named 'test.txt'.", hint:"Use 'touch test.txt'.", xp:40, check:(raw)=>/touch\s+test\.txt/.test(raw)},
-  {id:'CH-06', title:'READ A FILE', diff:'beginner', obj:"Read the contents of 'welcome.txt'.", hint:"Use 'cat welcome.txt'.", xp:35, check:(raw)=>/cat\s+welcome\.txt/.test(raw)},
-  {id:'CH-07', title:'ENTER A DIRECTORY', diff:'beginner', obj:"Move into the 'Documents' directory.", hint:"Use 'cd Documents'.", xp:35, check:(raw)=>/cd\s+Documents/.test(raw)},
-  {id:'CH-08', title:'FILE HUNTER', diff:'intermediate', obj:"Find the file named 'secret.txt' inside the training directory.", hint:"Use 'find ~/training -name secret.txt'.", xp:75, check:(raw)=>/find.*-name\s+secret\.txt/.test(raw)},
-  {id:'CH-09', title:'TEXT SEARCH', diff:'intermediate', obj:"Search for the word 'password' inside notes.txt using grep.", hint:"Use 'grep password notes.txt'.", xp:60, check:(raw)=>/grep\s+"?password"?\s+notes\.txt/.test(raw)},
-  {id:'CH-10', title:'COPY OPERATION', diff:'intermediate', obj:"Copy 'notes.txt' to 'notes_backup.txt'.", hint:"Use 'cp notes.txt notes_backup.txt'.", xp:55, check:(raw)=>/cp\s+notes\.txt\s+notes_backup\.txt/.test(raw)},
-  {id:'CH-11', title:'MOVE OPERATION', diff:'intermediate', obj:"Rename 'test.txt' to 'renamed.txt'.", hint:"Use 'mv test.txt renamed.txt'.", xp:55, check:(raw)=>/mv\s+test\.txt\s+renamed\.txt/.test(raw)},
-  {id:'CH-12', title:'CLEANUP', diff:'intermediate', obj:"Remove the file 'renamed.txt'.", hint:"Use 'rm renamed.txt'.", xp:45, check:(raw)=>/rm\s+renamed\.txt/.test(raw)},
-  {id:'CH-13', title:'FILE INSPECTOR', diff:'intermediate', obj:"Inspect file metadata for 'notes.txt' using stat.", hint:"Use 'stat notes.txt'.", xp:55, check:(raw)=>/stat\s+notes\.txt/.test(raw)},
-  {id:'CH-14', title:'DISK CHECK', diff:'intermediate', obj:'Check disk usage on the system.', hint:"Use 'df -h'.", xp:50, check:(raw)=>/df\s+-h/.test(raw)},
-  {id:'CH-15', title:'RECURSIVE VIEW', diff:'advanced', obj:'Display the full directory tree from home.', hint:"Use 'tree'.", xp:80, check:(raw)=>raw.trim()==='tree'},
-  {id:'CH-16', title:'PIPELINE THINKING', diff:'advanced', obj:'Use grep with line numbers to locate credentials in creds.txt.', hint:"Use 'grep -n admin creds.txt'.", xp:90, check:(raw)=>/grep\s+-n\s+admin\s+creds\.txt/.test(raw)},
-  {id:'CH-17', title:'PERMISSION MASTER', diff:'advanced', obj:"Set 'recon.sh' permissions to 755.", hint:"Use 'chmod 755 recon.sh'.", xp:85, check:(raw)=>/chmod\s+755\s+recon\.sh/.test(raw)},
-  {id:'CH-18', title:'PROCESS ANALYST', diff:'advanced', obj:'List all running processes.', hint:"Use 'ps aux'.", xp:70, check:(raw)=>/ps\s+aux/.test(raw)},
-  {id:'CH-19', title:'NETWORK SCOUT', diff:'advanced', obj:'Inspect the network interfaces on this system.', hint:"Use 'ip a'.", xp:75, check:(raw)=>/^ip\s+a/.test(raw.trim())},
-  {id:'CH-20', title:'FULL INVESTIGATION', diff:'advanced', obj:'Complete a multi-step investigation: find secret.txt, then read it with cat.', hint:'find it first, then cat the result path.', xp:120, check:(raw)=>/cat.*secret\.txt/.test(raw)}
-];
-let challengeFilter='all';
-function renderChallenges(){
-  let grid=document.getElementById('challenge-grid');
-  let list=challengeFilter==='all'?challenges:challenges.filter(c=>c.diff===challengeFilter);
-  grid.innerHTML='';
-  list.forEach(ch=>{
-    let done=state.challengesDone.has(ch.id);
-    let isActive=state.activeChallenge&&state.activeChallenge.id===ch.id;
-    let card=document.createElement('div');
-    card.className=`ch-card ${done?'done':''} ${isActive?'active-glow':''}`;
-    card.innerHTML=`
-      ${done?'<div class="ch-done-mark">✓ DONE</div>':''}
-      <div class="ch-id">${ch.id}</div>
-      <div class="ch-title">${ch.title}</div>
-      <span class="badge-diff ${ch.diff}">${ch.diff}</span>
-      <div class="ch-obj" style="margin-top:8px;">${ch.obj}</div>
-      <div class="ch-foot"><span class="ch-xp">+${ch.xp} XP</span>${!done?'<button class="btn ghost">Start</button>':''}</div>
-    `;
-    if(!done) card.querySelector('button').onclick=(e)=>{ e.stopPropagation(); startChallenge(ch.id); };
-    grid.appendChild(card);
-  });
-}
-document.getElementById('diff-filter').addEventListener('click',(e)=>{
-  if(e.target.tagName!=='BUTTON') return;
-  document.querySelectorAll('#diff-filter button').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');
-  challengeFilter=e.target.dataset.d;
-  renderChallenges();
+// Click on terminal to focus input
+document.getElementById('term-window').addEventListener('click', () => {
+  termInput.focus();
 });
-function startChallenge(id){
-  let ch=challenges.find(c=>c.id===id);
-  state.activeChallenge=ch;
-  showNotif(`Challenge started: ${ch.title}`);
-  renderChallenges();
-}
-function checkChallenge(raw){
-  if(!state.activeChallenge) return;
-  if(state.activeChallenge.check(raw)){
-    addXP(state.activeChallenge.xp);
-    state.challengesDone.add(state.activeChallenge.id);
-    showNotif(`Challenge complete: +${state.activeChallenge.xp} XP`);
-    state.activeChallenge=null;
-    if(state.challengesDone.size>=5) awardBadge('CHALLENGE_HUNTER');
-    renderChallenges();
+
+// ─────────────────── HELP PANEL ───────────────────
+helpClose.addEventListener('click', () => helpPanel.classList.remove('visible'));
+
+// ─────────────────── LIBRARY ───────────────────
+libToggle.addEventListener('click', () => {
+  const visible = libLibrary.classList.toggle('visible');
+  libToggle.querySelector('#lib-toggle-label').textContent = visible ? 'Close' : 'Commands';
+  if (visible) {
+    renderLibrary('');
+    libSearch.value = '';
   }
-}
-
-/* ================================================================
-   6. PRACTICE MISSIONS
-================================================================ */
-const missions = [
-  { id:'m1', title:'MISSION 01 — FILE SYSTEM BASICS', goal:'Navigate through the Linux filesystem.',
-    tasks:[
-      {t:'Check your current directory', match:c=>c==='pwd'},
-      {t:'List all files', match:c=>c.startsWith('ls')},
-      {t:'Enter Documents', match:c=>/^cd\s+Documents/.test(c)},
-      {t:'Read todo.txt', match:c=>/^cat\s+todo\.txt/.test(c)},
-      {t:'Return to home', match:c=>c==='cd'||c==='cd ~'}
-    ]},
-  { id:'m2', title:'MISSION 02 — TEXT INVESTIGATION', goal:'Practice locating information inside files.',
-    tasks:[
-      {t:'Search notes.txt for "grep"', match:c=>/^grep\s+.*notes\.txt/.test(c)},
-      {t:'Count words in notes.txt', match:c=>/^wc\s+notes\.txt/.test(c)},
-      {t:'View the first lines of todo.txt', match:c=>/^head/.test(c)},
-      {t:'Sort the lines of todo.txt', match:c=>/^sort\s+todo\.txt/.test(c)}
-    ]},
-  { id:'m3', title:'MISSION 03 — SYSTEM RECON', goal:'Gather basic information about the simulated system.',
-    tasks:[
-      {t:'Check your username', match:c=>c==='whoami'},
-      {t:'Check system information', match:c=>/^uname/.test(c)},
-      {t:'List running processes', match:c=>/^ps/.test(c)},
-      {t:'Inspect network interfaces', match:c=>/^ip\s+a/.test(c)}
-    ]}
-];
-function checkMissions(cmdName, args){
-  let rawCmd=(cmdName+' '+args.join(' ')).trim();
-  missions.forEach(m=>{
-    state.activeMissionTaskState[m.id]=state.activeMissionTaskState[m.id]||new Array(m.tasks.length).fill(false);
-    m.tasks.forEach((task,i)=>{
-      if(!state.activeMissionTaskState[m.id][i] && task.match(rawCmd)){
-        state.activeMissionTaskState[m.id][i]=true;
-        addXP(15);
-      }
-    });
-  });
-  renderMissions();
-}
-function renderMissions(){
-  let wrap=document.getElementById('mission-list');
-  wrap.innerHTML='';
-  missions.forEach(m=>{
-    let done=state.activeMissionTaskState[m.id]||new Array(m.tasks.length).fill(false);
-    let pct=Math.round((done.filter(Boolean).length/m.tasks.length)*100);
-    let card=document.createElement('div'); card.className='mission-card';
-    card.innerHTML=`
-      <div class="mission-title">${m.title}</div>
-      <div class="mission-goal">${m.goal}</div>
-      ${m.tasks.map((t,i)=>`<div class="task-row ${done[i]?'done':''}"><span class="task-check">${done[i]?'✓':''}</span><span class="tlabel">${t.t}</span></div>`).join('')}
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div style="text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:6px;">${pct}%</div>
-    `;
-    wrap.appendChild(card);
-  });
-}
-
-/* ================================================================
-   7. XP / LEVEL / BADGES
-================================================================ */
-function addXP(amt){
-  state.xp += amt;
-  document.getElementById('xp-pill').textContent = `${state.xp} XP`;
-  let level = Math.floor(state.xp/250)+1;
-  document.getElementById('level-pill').textContent = `LEVEL ${level.toString().padStart(2,'0')}`;
-  updateDashboard();
-}
-function showNotif(msg){
-  let n=document.getElementById('notif'); n.textContent=msg; n.classList.add('show');
-  setTimeout(()=>n.classList.remove('show'), 2400);
-}
-function awardBadge(b){
-  if(!state.badges.has(b)){ state.badges.add(b); showNotif(`Badge unlocked: ${b.replace(/_/g,' ')}`); updateDashboard(); }
-}
-const ALL_BADGES = ['FIRST_COMMAND','FILE_EXPLORER','LINUX_BEGINNER','TEXT_HUNTER','PROCESS_ANALYST','NETWORK_SCOUT','PERMISSION_MASTER','COMMAND_MASTER','CHALLENGE_HUNTER','FILE_HUNTER'];
-
-/* ================================================================
-   8. DASHBOARD / HISTORY
-================================================================ */
-function updateHistoryPanel(){
-  let body=document.getElementById('hist-body');
-  let empty=document.getElementById('hist-empty');
-  if(!state.history.length){ body.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  body.innerHTML=state.history.slice().reverse().map((c,i)=>`<tr data-c="${escapeHtml(c)}"><td class="idx">${(state.history.length-i).toString().padStart(3,'0')}</td><td>${escapeHtml(c)}</td></tr>`).join('');
-  body.querySelectorAll('tr').forEach(row=> row.onclick = ()=>{
-    document.getElementById('term-input').value = row.dataset.c;
-    showSection('terminal');
-    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.section==='terminal'));
-    document.getElementById('term-input').focus();
-  });
-}
-function updateDashboard(){
-  document.getElementById('d-cmds').textContent = state.commandsExec;
-  document.getElementById('d-learned').textContent = state.learnedCommands.size;
-  document.getElementById('d-ch').textContent = state.challengesDone.size;
-  document.getElementById('d-xp').textContent = state.xp;
-  let level=Math.floor(state.xp/250)+1;
-  document.getElementById('d-level').textContent = `LEVEL ${level.toString().padStart(2,'0')}`;
-  document.getElementById('d-progress').style.width = (state.xp%250)/250*100+'%';
-
-  document.getElementById('d-recent').innerHTML = state.history.slice(-5).reverse().map(c=>`<div class="mini-row"><span>${escapeHtml(c)}</span></div>`).join('') || '<div class="mini-row"><span>No commands yet</span></div>';
-
-  let sortedFreq=Object.entries(state.cmdFreq).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  document.getElementById('d-most').innerHTML = sortedFreq.map(([c,n])=>`<div class="mini-row"><span>${c}</span><b>${n}×</b></div>`).join('') || '<div class="mini-row"><span>No data yet</span></div>';
-
-  let badgeWrap=document.getElementById('badge-container');
-  badgeWrap.innerHTML=ALL_BADGES.map(b=>{
-    let has=state.badges.has(b);
-    return `<div class="badge-item ${has?'':'locked'}"><span class="bd-dot"></span>${b.replace(/_/g,' ')}</div>`;
-  }).join('');
-}
-
-/* ================================================================
-   9. NAVIGATION / INIT
-================================================================ */
-function showSection(id){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
-}
-document.querySelectorAll('.tab').forEach(btn=>{
-  btn.onclick=()=>{
-    showSection(btn.dataset.section);
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    if(btn.dataset.section==='dashboard') updateDashboard();
-    if(btn.dataset.section==='history') updateHistoryPanel();
-  };
 });
-document.getElementById('theme-btn').onclick = ()=>{
-  const root=document.documentElement;
-  const isLight=root.style.getPropertyValue('--bg')==='#eef2f5';
-  root.style.setProperty('--bg', isLight ? '#0a0e14' : '#eef2f5');
-  root.style.setProperty('--terminal', isLight ? '#f0f4f0' : '#0d121c');
-  root.style.setProperty('--panel', isLight ? '#e2ece2' : '#111822');
-  root.style.setProperty('--border', isLight ? '#5a7a5a' : '#2a3a4a');
-  root.style.setProperty('--border-soft', isLight ? '#7a9a7a' : '#1e2a36');
-  root.style.setProperty('--text', isLight ? '#112211' : '#e6edf3');
-  root.style.setProperty('--muted', isLight ? '#2a4a2a' : '#8b949e');
-};
 
-setInterval(()=>{ document.getElementById('term-clock').textContent = new Date().toLocaleTimeString(); }, 1000);
+libClose.addEventListener('click', () => {
+  libLibrary.classList.remove('visible');
+  libToggle.querySelector('#lib-toggle-label').textContent = 'Commands';
+});
 
-window.onload = ()=>{
-  buildLibrary();
+libSearch.addEventListener('input', (e) => {
+  renderLibrary(e.target.value);
+});
+
+// ─────────────────── THEME TOGGLE ───────────────────
+let dark = true;
+document.getElementById('theme-btn').addEventListener('click', () => {
+  dark = !dark;
+  const root = document.documentElement.style;
+  if (dark) {
+    root.setProperty('--bg', '#0a0e14');
+    root.setProperty('--terminal', '#0d121c');
+    root.setProperty('--panel', '#111822');
+    root.setProperty('--border', '#2a3a4a');
+    root.setProperty('--text', '#e6edf3');
+    document.getElementById('theme-btn').textContent = 'THEME';
+  } else {
+    root.setProperty('--bg', '#f0f2f5');
+    root.setProperty('--terminal', '#ffffff');
+    root.setProperty('--panel', '#e8ecf0');
+    root.setProperty('--border', '#bcc2cc');
+    root.setProperty('--text', '#1a1d24');
+    document.getElementById('theme-btn').textContent = 'DARK';
+  }
+});
+
+// ─────────────────── INIT ───────────────────
+function init() {
+  updateClock();
+  setInterval(updateClock, 1000);
+  updatePath();
+  updatePills();
+  renderHistory();
   renderChallenges();
-  renderMissions();
-  updateHistoryPanel();
-  updateDashboard();
-  updatePrompt();
-  appendLine('Welcome to Linux CMD.', 'line-sys');
-  appendLine("This is a fully simulated, client-side training environment. No real commands are executed.", 'line-sys');
-  appendLine("Type 'help' to see the full command reference.", 'line-sys');
-  appendLine("📚 Click 'Library' in the title bar to browse all commands.\n", 'line-sys');
-};
+  renderPractice();
+  renderDashboard();
+  renderBadges();
+  termInput.focus();
+  
+  // Welcome banner
+  appendOutput('Welcome to Linux CMD! Type "help" to begin.', 'line-help');
+}
+
+init();
 </script>
 </body>
 </html>
