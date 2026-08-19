@@ -604,7 +604,7 @@
         <div class="line-sys">Type <span class="line-help">help</span> to list commands or <span class="line-help">clear</span> to clear screen.</div>
         <div class="line-sys">─────────────────────────────────────────────</div>
         <div class="line-sys">💡 Tip: Click the 📚 Commands button for a list of all commands</div>
-        <div class="line-sys">🛠️  New: sudo, su, useradd, passwd, and 20+ more commands!</div>
+        <div class="line-sys">🛠️  60+ commands including sudo, su, useradd, passwd, ping, and more!</div>
       </div>
       <div class="term-inputline">
         <span class="p1" id="prompt-user">kali@linux</span>:<span class="p2" id="prompt-path">~</span>$ 
@@ -766,6 +766,15 @@ const COMMANDS = {
   export: { diff: 'intermediate', desc: 'Set environment variables', syntax: 'export [var]=[value]', example: 'export PATH=$PATH:/usr/local/bin' },
   sleep: { diff: 'beginner', desc: 'Delay for a specified time', syntax: 'sleep [seconds]', example: 'sleep 5' },
   yes: { diff: 'beginner', desc: 'Output a string repeatedly', syntax: 'yes [string]', example: 'yes | head -5' },
+  // additional commands to reach 60+
+  wget: { diff: 'intermediate', desc: 'Download files from the web', syntax: 'wget [url]', example: 'wget https://example.com/file.zip' },
+  curl: { diff: 'intermediate', desc: 'Transfer data from or to a server', syntax: 'curl [options] [url]', example: 'curl -O https://example.com/file.zip' },
+  diff: { diff: 'intermediate', desc: 'Compare files line by line', syntax: 'diff [file1] [file2]', example: 'diff file1.txt file2.txt' },
+  comm: { diff: 'advanced', desc: 'Compare two sorted files line by line', syntax: 'comm [file1] [file2]', example: 'comm sorted1.txt sorted2.txt' },
+  xargs: { diff: 'advanced', desc: 'Build and execute command lines from standard input', syntax: 'xargs [command]', example: 'find . -name "*.txt" | xargs rm' },
+  tee: { diff: 'intermediate', desc: 'Read from stdin and write to stdout and files', syntax: 'tee [file]', example: 'echo "hello" | tee file.txt' },
+  watch: { diff: 'intermediate', desc: 'Execute a command periodically', syntax: 'watch [command]', example: 'watch -n 1 date' },
+  time: { diff: 'beginner', desc: 'Time command execution', syntax: 'time [command]', example: 'time ls -la' },
 };
 
 const CHALLENGES = [
@@ -1645,6 +1654,80 @@ function runCommand(cmd) {
     appendOutput(`$ ${trimmed}`, 'line-in');
     appendOutput(output);
   }
+  // additional commands
+  else if (base === 'wget') {
+    if (args.length === 0) {
+      output = 'wget: missing URL';
+    } else {
+      output = `--2026-01-01 10:42:31--  ${args[0]}\nResolving ${args[0].replace(/^https?:\/\//, '').split('/')[0]}... 93.184.216.34\nConnecting to ${args[0].replace(/^https?:\/\//, '').split('/')[0]}:80... connected.\nHTTP request sent, awaiting response... 200 OK\nLength: 12345 (12K) [application/octet-stream]\nSaving to: '${args[0].split('/').pop() || 'index.html'}'\n\n100%[========================================>] 12,345  --.-KB/s    in 0.1s    \n\n'${args[0].split('/').pop() || 'index.html'}' saved [12345/12345]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'curl') {
+    if (args.length === 0) {
+      output = 'curl: missing URL';
+    } else {
+      const url = args[args.length - 1];
+      output = `  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n100  1234  100  1234    0     0   1234      0 --:--:-- --:--:-- --:--:--  1234\n[simulated content from ${url}]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'diff') {
+    if (args.length < 2) {
+      output = 'diff: missing file operands';
+    } else {
+      output = `--- ${args[0]}  2026-01-01 10:42:31\n+++ ${args[1]}  2026-01-01 10:42:31\n@@ -1,3 +1,3 @@\n line1\n-line2\n+line2 modified\n line3`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'comm') {
+    if (args.length < 2) {
+      output = 'comm: missing file operands';
+    } else {
+      output = `\tline1\n\tline2\nline3`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'xargs') {
+    if (args.length === 0) {
+      output = 'xargs: missing command';
+    } else {
+      output = `Running: ${args.join(' ')} ... [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'tee') {
+    if (args.length === 0) {
+      output = 'tee: missing file operand';
+    } else {
+      output = `Writing to ${args[0]} ... [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'watch') {
+    if (args.length === 0) {
+      output = 'watch: missing command';
+    } else {
+      output = `Every 2.0s: ${args.join(' ')} ... [simulated]`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
+  else if (base === 'time') {
+    if (args.length === 0) {
+      output = 'time: missing command';
+    } else {
+      output = `real\t0m0.123s\nuser\t0m0.010s\nsys\t0m0.020s`;
+    }
+    appendOutput(`$ ${trimmed}`, 'line-in');
+    appendOutput(output);
+  }
   else if (base === '') {
     appendOutput('$ ', 'line-in');
   }
@@ -1971,7 +2054,7 @@ function init() {
   
   appendOutput('Welcome to Linux CMD v3.0!', 'line-help');
   appendOutput('Type "help" to list all 60+ commands.', 'line-help');
-  appendOutput('New commands: sudo, su, useradd, passwd, ping, and more!', 'line-help');
+  appendOutput('New commands: wget, curl, diff, comm, xargs, tee, watch, time', 'line-help');
 }
 
 init();
